@@ -120,7 +120,7 @@ jobs:
         run: npm run build -w apps/web
       - name: Test the app, with axe on the main screens
         run: npm test -w apps/web
-      - name: Use the built app in Chromium and check it with axe
+      - name: Use the built app in Chromium and WebKit and check it with axe
         run: |
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
           node apps/web/scripts/check-browser.mjs

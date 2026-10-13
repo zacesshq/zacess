@@ -24,7 +24,7 @@ async function startWorker(): Promise<Worker> {
       if (m.status === "recognizing text") {
         listener({ message: `${label}: ${Math.round(m.progress * 100)}% recognised`, fraction: m.progress });
       } else if (m.status.startsWith("loading")) {
-        listener({ message: "Loading the text recogniser on this device" });
+        listener({ message: "Loading the text recogniser" });
       }
     },
   });

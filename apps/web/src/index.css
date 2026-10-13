@@ -86,10 +86,37 @@ body {
   box-shadow: 0 0 0 6px var(--highlight);
 }
 
+/* the theme menu: its items carry the ring inside their own box. The menu itself takes
+   the focus when opened with a pointer and needs none */
+[role="menu"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.18);
+}
+[role="menu"] [role="menuitemradio"]:focus-visible {
+  outline: 3px solid var(--fg);
+  outline-offset: -3px;
+  box-shadow: none;
+}
+
+/* side gutters that clear the notch and rounded corners of a phone held sideways; the page opts in
+   to the full screen with viewport-fit=cover */
+.zc-gutter {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+.zc-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.zc-safe-bottom {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
 .skip-link {
   position: absolute;
-  left: 1rem;
-  top: -100px;
+  left: max(1rem, env(safe-area-inset-left));
+  /* moved up by its own height, so it stays out of sight however large the text is */
+  top: 0;
+  transform: translateY(-110%);
   z-index: 50;
   padding: 0.75rem 1rem;
   background: var(--highlight);
@@ -99,7 +126,8 @@ body {
   text-decoration: underline;
 }
 .skip-link:focus {
-  top: 1rem;
+  top: max(1rem, env(safe-area-inset-top));
+  transform: none;
 }
 
 /* the sentence being read aloud: ink on highlight with an underline, so it never rests on colour */
@@ -121,6 +149,8 @@ body {
 .zc-view {
   position: relative;
   min-height: 60vh;
+  /* the small viewport height, so the view does not jump as a phone's address bar shows and hides */
+  min-height: 60svh;
 }
 .zc-view .zc-doc {
   /* the column never forces a horizontal scroll, however large the text */

@@ -4,6 +4,7 @@
 import type { LinkInput, PageInput, TextItem } from "@/core";
 import { recognise } from "./ocr";
 import { ownAsset, type ProgressListener } from "./progress";
+import { limitScale } from "./canvas";
 
 /** Pages are drawn at twice their size for OCR, about 144 dots per inch. */
 const OCR_SCALE = 2;
@@ -100,7 +101,7 @@ export async function readPdf(data: ArrayBuffer, onProgress: ProgressListener): 
       const entry: PageInput = { number, width: viewport.width, height: viewport.height, items, links: await linksOf(page, viewport) };
       if (items.length === 0) {
         const canvas = document.createElement("canvas");
-        const scaled = page.getViewport({ scale: OCR_SCALE });
+        const scaled = page.getViewport({ scale: limitScale(viewport.width, viewport.height, OCR_SCALE) });
         canvas.width = Math.ceil(scaled.width);
         canvas.height = Math.ceil(scaled.height);
         await page.render({ canvas, viewport: scaled }).promise;

@@ -1,9 +1,10 @@
-import { useId, useRef, useState, type ClipboardEvent, type DragEvent } from "react";
-import { ClipboardPaste, FileUp } from "lucide-react";
-import { ACCEPT } from "@/open";
+import { useId, useRef, useState, type ChangeEvent, type ClipboardEvent, type DragEvent } from "react";
+import { Camera, ClipboardPaste, FileUp } from "lucide-react";
+import { ACCEPT, CAMERA_ACCEPT } from "@/open";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useCoarsePointer } from "@/lib/pointer";
 import { Section } from "./Section";
 
 interface Props {
@@ -14,6 +15,8 @@ interface Props {
 
 export function OpenPanel({ busy, onFile, onPaste }: Props) {
   const input = useRef<HTMLInputElement>(null);
+  const camera = useRef<HTMLInputElement>(null);
+  const touch = useCoarsePointer();
   const [dragging, setDragging] = useState(false);
   const [text, setText] = useState("");
   // the HTML of a copied web page, kept while the box still holds exactly what was pasted
@@ -38,6 +41,13 @@ export function OpenPanel({ busy, onFile, onPaste }: Props) {
     setHtml(copied && empty ? { html: copied, text: plain } : null);
   };
 
+  const chosen = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) onFile(file);
+    // the same file can be chosen again after a change of settings
+    e.target.value = "";
+  };
+
   const keptHtml = html && html.text.trim() === text.trim() ? html.html : null;
 
   return (
@@ -53,7 +63,7 @@ export function OpenPanel({ busy, onFile, onPaste }: Props) {
         }}
         onDrop={drop}
         className={cn(
-          "grid justify-items-start gap-3 rounded-md border-[3px] border-dashed border-fg p-4",
+          "grid min-w-0 justify-items-start gap-3 rounded-md border-[3px] border-dashed border-fg p-4",
           dragging && "border-solid bg-surface",
         )}
       >
@@ -66,23 +76,39 @@ export function OpenPanel({ busy, onFile, onPaste }: Props) {
             </>
           )}
         </p>
-        <Button variant="primary" onClick={() => input.current?.click()} disabled={busy} aria-describedby={dropHint}>
-          <FileUp aria-hidden="true" />
-          Choose a file
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="primary" onClick={() => input.current?.click()} disabled={busy} aria-describedby={dropHint}>
+            <FileUp aria-hidden="true" />
+            Choose a file
+          </Button>
+          {/* on a phone or tablet the camera opens straight away; the picture is read like any other
+              image, through text recognition */}
+          {touch ? (
+            <Button onClick={() => camera.current?.click()} disabled={busy}>
+              <Camera aria-hidden="true" />
+              Take a photo
+            </Button>
+          ) : null}
+        </div>
         <input
           ref={input}
           type="file"
           accept={ACCEPT}
           hidden
           data-testid="file-input"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) onFile(file);
-            // the same file can be chosen again after a change of settings
-            e.target.value = "";
-          }}
+          onChange={chosen}
         />
+        {touch ? (
+          <input
+            ref={camera}
+            type="file"
+            accept={CAMERA_ACCEPT}
+            capture="environment"
+            hidden
+            data-testid="camera-input"
+            onChange={chosen}
+          />
+        ) : null}
       </div>
 
       <div className="grid gap-2">

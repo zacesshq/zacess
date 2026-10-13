@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "title": "Signals week 3",
+  "source": { "file_name": "week3.pdf", "format": "pdf" },
+  "pages": [
+    { "number": 1, "width": 595.0, "height": 842.0, "unit": "pt" },
+    { "number": 2, "width": 595.0, "height": 842.0, "unit": "pt" }
+  ],
+  "blocks": [
+    {
+      "id": 1,
+      "type": "heading",
+      "level": 1,
+      "runs": [
+        {
+          "text": "Fourier series",
+          "confidence": 1.0,
+          "origin": { "page": 1, "region": { "x": 72.0, "y": 64.0, "width": 180.0, "height": 24.0 } }
+        }
+      ],
+      "origin": { "page": 1, "region": { "x": 72.0, "y": 64.0, "width": 180.0, "height": 24.0 } }
+    },
+    {
+      "id": 2,
+      "type": "paragraph",
+      "runs": [
+        {
+          "text": "The period is",
+          "confidence": 1.0,
+          "origin": { "page": 1, "region": { "x": 72.0, "y": 104.0, "width": 80.0, "height": 14.0 } }
+        },
+        {
+          "text": "2.6",
+          "confidence": 0.62,
+          "origin": { "page": 1, "region": { "x": 156.0, "y": 104.0, "width": 18.0, "height": 14.0 } },
+          "status": "corrected",
+          "original_text": "2.5"
+        },
+        {
+          "text": "ms.",
+          "confidence": 1.0,
+          "origin": { "page": 1, "region": { "x": 178.0, "y": 104.0, "width": 20.0, "height": 14.0 } }
+        }
+      ],
+      "origin": { "page": 1, "region": { "x": 72.0, "y": 104.0, "width": 126.0, "height": 14.0 } }
+    },
+    {
+      "id": 3,
+      "type": "list",
+      "ordered": true,
+      "items": [
+        { "runs": [{ "text": "Sample", "confidence": 1.0 }] },
+        {
+          "runs": [{ "text": "Transform", "confidence": 1.0 }],
+          "children": [{ "runs": [{ "text": "Window first", "confidence": 1.0 }] }]
+        }
+      ],
+      "origin": { "page": 1, "region": { "x": 72.0, "y": 130.0, "width": 200.0, "height": 48.0 } }
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "caption": [{ "text": "Measured gain", "confidence": 1.0 }],
+      "rows": [
+        {
+          "cells": [
+            { "runs": [{ "text": "f (Hz)", "confidence": 1.0 }], "header": true },
+            { "runs": [{ "text": "Gain", "confidence": 1.0 }], "header": true }
+          ]
+        },
+        {
+          "cells": [
+            { "runs": [{ "text": "50", "confidence": 1.0 }] },
+            { "runs": [{ "text": "0.7", "confidence": 1.0 }] }
+          ]
+        }
+      ],
+      "origin": { "page": 1, "region": { "x": 72.0, "y": 190.0, "width": 240.0, "height": 60.0 } }
+    },
+    {
+      "id": 5,
+      "type": "page_break",
+      "origin": { "page": 2, "region": { "x": 0.0, "y": 0.0, "width": 0.0, "height": 0.0 } }
+    },
+    {
+      "id": 6,
+      "type": "image",
+      "asset": "images/p2-1.png",
+      "origin": { "page": 2, "region": { "x": 72.0, "y": 72.0, "width": 300.0, "height": 200.0 } }
+    },
+    {
+      "id": 7,
+      "type": "equation",
+      "runs": [{ "text": "V = IR", "confidence": 0.91 }],
+      "latex": "V = IR",
+      "display": true,
+      "origin": { "page": 2, "region": { "x": 72.0, "y": 290.0, "width": 90.0, "height": 18.0 } }
+    }
+  ]
+}

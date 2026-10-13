@@ -1,0 +1,99 @@
+{
+  "overall": {
+    "character_accuracy": 0.9885,
+    "number_symbol_accuracy": 0.8927,
+    "reading_order": 1.0,
+    "heading_detection": 1.0
+  },
+  "categories": {
+    "numbers": {
+      "character_accuracy": 0.9731,
+      "number_symbol_accuracy": 0.8211,
+      "reading_order": 1.0,
+      "heading_detection": 1.0
+    },
+    "scanned": {
+      "character_accuracy": 1.0,
+      "number_symbol_accuracy": null,
+      "reading_order": 1.0,
+      "heading_detection": 1.0
+    },
+    "slides": {
+      "character_accuracy": 1.0,
+      "number_symbol_accuracy": 1.0,
+      "reading_order": 1.0,
+      "heading_detection": 1.0
+    },
+    "textbook": {
+      "character_accuracy": 1.0,
+      "number_symbol_accuracy": 1.0,
+      "reading_order": 1.0,
+      "heading_detection": 1.0
+    }
+  },
+  "fixtures": {
+    "handout-scan": {
+      "category": "scanned",
+      "scores": {
+        "character_accuracy": 1.0,
+        "number_symbol_accuracy": null,
+        "reading_order": 1.0,
+        "heading_detection": 1.0
+      }
+    },
+    "handout-scan-pdf": {
+      "category": "scanned",
+      "scores": {
+        "character_accuracy": 1.0,
+        "number_symbol_accuracy": null,
+        "reading_order": 1.0,
+        "heading_detection": 1.0
+      }
+    },
+    "notes-numbers": {
+      "category": "numbers",
+      "scores": {
+        "character_accuracy": 1.0,
+        "number_symbol_accuracy": 1.0,
+        "reading_order": 1.0,
+        "heading_detection": 1.0
+      }
+    },
+    "notes-numbers-scan": {
+      "category": "numbers",
+      "scores": {
+        "character_accuracy": 0.9194,
+        "number_symbol_accuracy": 0.4634,
+        "reading_order": 1.0,
+        "heading_detection": 1.0
+      }
+    },
+    "notes-technical": {
+      "category": "numbers",
+      "scores": {
+        "character_accuracy": 1.0,
+        "number_symbol_accuracy": 1.0,
+        "reading_order": 1.0,
+        "heading_detection": 1.0
+      }
+    },
+    "slides-signals": {
+      "category": "slides",
+      "scores": {
+        "character_accuracy": 1.0,
+        "number_symbol_accuracy": 1.0,
+        "reading_order": 1.0,
+        "heading_detection": 1.0
+      }
+    },
+    "textbook-two-column": {
+      "category": "textbook",
+      "scores": {
+        "character_accuracy": 1.0,
+        "number_symbol_accuracy": 1.0,
+        "reading_order": 1.0,
+        "heading_detection": 1.0
+      }
+    }
+  }
+}

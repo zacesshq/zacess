@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: Rust
+    runs-on: ubuntu-latest
+    # keeps the under five minutes target enforced rather than hoped for
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Install the OCR and braille tools the tests and the quality suite use
+        run: sudo apt-get update -q && sudo apt-get install -y -q tesseract-ocr poppler-utils liblouis-bin
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+
+  quality:
+    name: Document quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install the OCR and braille tools the tests and the quality suite use
+        run: sudo apt-get update -q && sudo apt-get install -y -q tesseract-ocr poppler-utils liblouis-bin
+      - uses: Swatinem/rust-cache@v2
+      - name: Find the baselines to compare against
+        env:
+          BASE: ${{ github.base_ref }}
+        run: |
+          baselines="--baseline tests/fixtures/baseline.json"
+          # the base branch's baseline stops a pull request from passing by lowering its own
+          git fetch --depth=1 origin "$BASE"
+          if git show "origin/$BASE:tests/fixtures/baseline.json" > "$RUNNER_TEMP/base-baseline.json" 2>/dev/null; then
+            baselines="$baselines --baseline $RUNNER_TEMP/base-baseline.json"
+          fi
+          echo "BASELINES=$baselines" >> "$GITHUB_ENV"
+      - name: Score the document quality suite
+        run: cargo run -q -p zacess-quality -- check $BASELINES
+
+  accessibility:
+    name: Accessible output
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/accessibility/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Export the fixtures and the example document
+        run: |
+          for f in docs/examples/document.json tests/fixtures/slides-signals.pdf tests/fixtures/textbook-two-column.pdf tests/fixtures/notes-numbers.pdf; do
+            cargo run -q -p zacess-core --example export -- "$f" out
+            cargo run -q -p zacess-core --example export -- "$f" out-low-vision low-vision
+          done
+      - name: Check the HTML against WCAG 2.2 AA with axe
+        working-directory: tools/accessibility
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          node check.mjs ../../out/*.html ../../out-low-vision/*.html
+      - name: Check the EPUBs with EPUBCheck
+        run: |
+          curl -sSL -o epubcheck.zip https://github.com/w3c/epubcheck/releases/download/v5.2.1/epubcheck-5.2.1.zip
+          unzip -q epubcheck.zip
+          for f in out/*.epub out-low-vision/*.epub; do
+            java -jar epubcheck-5.2.1/epubcheck.jar --quiet --failonwarnings "$f"
+          done

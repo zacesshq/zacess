@@ -1,0 +1,88 @@
+{
+  "name": "slides-signals",
+  "category": "slides",
+  "file": "slides-signals.pdf",
+  "has_text_layer": true,
+  "pages": 4,
+  "blocks": [
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 1,
+      "text": "Signals and Systems"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Week 3: Fourier series"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Lecture slides for EE2001"
+    },
+    {
+      "page": 2,
+      "type": "heading",
+      "level": 2,
+      "text": "Why Fourier series?"
+    },
+    {
+      "page": 2,
+      "type": "list_item",
+      "text": "Any periodic signal is a sum of sinusoids"
+    },
+    {
+      "page": 2,
+      "type": "list_item",
+      "text": "Each harmonic has its own amplitude and phase"
+    },
+    {
+      "page": 2,
+      "type": "list_item",
+      "text": "A filter acts on each harmonic separately"
+    },
+    {
+      "page": 3,
+      "type": "heading",
+      "level": 2,
+      "text": "Worked example"
+    },
+    {
+      "page": 3,
+      "type": "paragraph",
+      "text": "A square wave at 50 Hz has only odd harmonics."
+    },
+    {
+      "page": 3,
+      "type": "list_item",
+      "text": "Third harmonic: 150 Hz"
+    },
+    {
+      "page": 3,
+      "type": "list_item",
+      "text": "Fifth harmonic: 250 Hz"
+    },
+    {
+      "page": 3,
+      "type": "list_item",
+      "text": "Seventh harmonic: 350 Hz"
+    },
+    {
+      "page": 4,
+      "type": "heading",
+      "level": 2,
+      "text": "Summary"
+    },
+    {
+      "page": 4,
+      "type": "paragraph",
+      "text": "Periodic signals can be analysed one harmonic at a time."
+    },
+    {
+      "page": 4,
+      "type": "paragraph",
+      "text": "Next week: the Fourier transform for signals that do not repeat."
+    }
+  ]
+}

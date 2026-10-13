@@ -1,0 +1,14 @@
+{
+  "name": "zacess-accessibility-check",
+  "private": true,
+  "description": "Checks exported HTML against WCAG 2.2 AA with axe-core in headless Chromium",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "check": "node check.mjs"
+  },
+  "dependencies": {
+    "axe-core": "4.14.0",
+    "playwright": "1.64.0"
+  }
+}

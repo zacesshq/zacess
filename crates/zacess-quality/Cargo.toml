@@ -1,0 +1,13 @@
+[package]
+name = "zacess-quality"
+description = "Scores Zacess importers against the document quality test suite"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+zacess-core = { path = "../zacess-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

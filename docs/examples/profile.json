@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "Lectures",
+  "font": { "family": "Atkinson Hyperlegible", "fallback": "sans_serif" },
+  "font_size_pt": 26.0,
+  "line_spacing": 1.6,
+  "paragraph_spacing": 1.5,
+  "character_spacing": 0.02,
+  "column_width": 40,
+  "contrast": "yellow_on_black",
+  "cursor_size": "extra_large",
+  "reading_ruler": { "enabled": true, "position": 0.35, "lines": 1 },
+  "single_column": true,
+  "reduce_motion": true,
+  "hide_decoration": false
+}

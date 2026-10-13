@@ -1,0 +1,37 @@
+[
+  {
+    "name": "slides-signals",
+    "category": "slides",
+    "file": "slides-signals.pdf"
+  },
+  {
+    "name": "textbook-two-column",
+    "category": "textbook",
+    "file": "textbook-two-column.pdf"
+  },
+  {
+    "name": "notes-numbers",
+    "category": "numbers",
+    "file": "notes-numbers.pdf"
+  },
+  {
+    "name": "notes-technical",
+    "category": "numbers",
+    "file": "notes-technical.pdf"
+  },
+  {
+    "name": "notes-numbers-scan",
+    "category": "numbers",
+    "file": "notes-numbers-scan.png"
+  },
+  {
+    "name": "handout-scan",
+    "category": "scanned",
+    "file": "handout-scan.png"
+  },
+  {
+    "name": "handout-scan-pdf",
+    "category": "scanned",
+    "file": "handout-scan.pdf"
+  }
+]

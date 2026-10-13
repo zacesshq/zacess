@@ -1,0 +1,17 @@
+# rust
+target/
+# node
+node_modules/
+dist/
+# python
+__pycache__/
+.venv/
+*.pyc
+# os and editors
+.DS_Store
+.idea/
+.vscode/
+# local env files
+.env
+.env.*
+!.env.example

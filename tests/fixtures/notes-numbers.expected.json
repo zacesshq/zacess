@@ -1,0 +1,50 @@
+{
+  "name": "notes-numbers",
+  "category": "numbers",
+  "file": "notes-numbers.pdf",
+  "has_text_layer": true,
+  "pages": 1,
+  "blocks": [
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 1,
+      "text": "Potential divider notes"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Supply: Vin = 12 V, tolerance ± 5%"
+    },
+    {
+      "page": 1,
+      "type": "list_item",
+      "text": "R1 = 4.7 kΩ"
+    },
+    {
+      "page": 1,
+      "type": "list_item",
+      "text": "R2 = 10 kΩ"
+    },
+    {
+      "page": 1,
+      "type": "list_item",
+      "text": "Vout = Vin × R2 / (R1 + R2)"
+    },
+    {
+      "page": 1,
+      "type": "list_item",
+      "text": "Vout = 12 × 10 / 14.7 = 8.16 V"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "A load current of 2.2 mA through 160 Ω shifts the output by −0.35 V."
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Phase shift at 1.5 kHz: 45° (π/4 rad)."
+    }
+  ]
+}

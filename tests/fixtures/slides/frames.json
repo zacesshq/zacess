@@ -1,0 +1,90 @@
+{
+  "source": "Synthetic frames drawn with Pillow from text written for this repository: three slides (two light, one dark with a diagram) photographed with a simulated phone camera that adds a wall around the projection, vignetting, noise, shake, exposure changes and blur. Nothing was photographed. Slide two is built in three steps.",
+  "frames": [
+    {
+      "file": "a1-slide-one.jpg",
+      "expect": "new_slide",
+      "note": "slide one, first sight"
+    },
+    {
+      "file": "a2-slide-one-again.jpg",
+      "expect": "duplicate",
+      "note": "the same photograph again, pixel for pixel"
+    },
+    {
+      "file": "a3-slide-one-shake.jpg",
+      "expect": "duplicate",
+      "note": "camera shake"
+    },
+    {
+      "file": "a4-slide-one-dim.jpg",
+      "expect": "duplicate",
+      "note": "lighting change"
+    },
+    {
+      "file": "a5-slide-one-soft.jpg",
+      "expect": "duplicate",
+      "note": "out of focus"
+    },
+    {
+      "file": "b1-slide-two-step1.jpg",
+      "expect": "new_slide",
+      "note": "slide two with its first bullet"
+    },
+    {
+      "file": "b2-slide-two-step1-again.jpg",
+      "expect": "duplicate",
+      "note": "same step, a moment later"
+    },
+    {
+      "file": "b3-slide-two-step2.jpg",
+      "expect": "build",
+      "note": "second bullet appears"
+    },
+    {
+      "file": "b4-slide-two-step2-again.jpg",
+      "expect": "duplicate",
+      "note": "same step"
+    },
+    {
+      "file": "b5-slide-two-step3.jpg",
+      "expect": "build",
+      "note": "third bullet appears"
+    },
+    {
+      "file": "b6-slide-two-step3-again.jpg",
+      "expect": "duplicate",
+      "note": "same step"
+    },
+    {
+      "file": "c1-transition.jpg",
+      "expect": "pending",
+      "note": "half way through a fade between slides"
+    },
+    {
+      "file": "c2-diagram.jpg",
+      "expect": "new_slide",
+      "note": "slide three, a diagram"
+    },
+    {
+      "file": "c3-diagram-again.jpg",
+      "expect": "duplicate",
+      "note": "same slide"
+    },
+    {
+      "file": "d1-nothing.jpg",
+      "expect": "unusable",
+      "note": "the lens covered"
+    },
+    {
+      "file": "d2-back-to-one.jpg",
+      "expect": "revisit",
+      "note": "the lecturer goes back"
+    },
+    {
+      "file": "d3-back-to-two-step1.jpg",
+      "expect": "revisit",
+      "note": "back to slide two, before its bullets are built"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "handout-scan",
+  "category": "scanned",
+  "file": "handout-scan.png",
+  "has_text_layer": false,
+  "pages": 1,
+  "blocks": [
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 1,
+      "text": "Laboratory safety handout"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Read this sheet before your first practical session."
+    },
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "page": 1,
+      "type": "list_item",
+      "text": "Check that every lead is undamaged."
+    },
+    {
+      "page": 1,
+      "type": "list_item",
+      "text": "Keep liquids away from the bench."
+    },
+    {
+      "page": 1,
+      "type": "list_item",
+      "text": "Switch off the supply before changing a circuit."
+    },
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 2,
+      "text": "If something goes wrong"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Press the red isolation button and tell a demonstrator at once."
+    }
+  ]
+}

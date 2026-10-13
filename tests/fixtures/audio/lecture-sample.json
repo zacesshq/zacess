@@ -1,0 +1,26 @@
+{
+  "file": "lecture-sample.wav",
+  "sample_rate": 22050,
+  "channels": 1,
+  "bits": 16,
+  "duration": 14.88,
+  "language": "en",
+  "source": "Synthetic speech made with eSpeak NG (en-gb voice, 150 wpm) from text written for this repository, with silences inserted between the sentences.",
+  "utterances": [
+    {
+      "text": "Welcome to week three. Today we look at the Fourier series.",
+      "start": 0.5,
+      "end": 4.775
+    },
+    {
+      "text": "A square wave at fifty hertz has only odd harmonics.",
+      "start": 6.275,
+      "end": 10.02
+    },
+    {
+      "text": "The third harmonic is at one hundred and fifty hertz.",
+      "start": 11.02,
+      "end": 14.88
+    }
+  ]
+}

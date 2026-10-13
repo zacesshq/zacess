@@ -1,0 +1,40 @@
+{
+  "name": "notes-technical",
+  "category": "numbers",
+  "file": "notes-technical.pdf",
+  "has_text_layer": true,
+  "pages": 1,
+  "blocks": [
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 1,
+      "text": "Potential divider design"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Values measured on the bench after soldering."
+    },
+    {
+      "page": 1,
+      "type": "table",
+      "text": "Component\tValue\tTolerance\nR1\t4.7 kΩ\t± 5%\nR2\t10 kΩ\t± 1%\nC1\t100 nF\t± 10%"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "The output follows from the divider rule and the power from Ohm's law."
+    },
+    {
+      "page": 1,
+      "type": "equation",
+      "text": "Vout = Vin × R2 / (R1 + R2)"
+    },
+    {
+      "page": 1,
+      "type": "equation",
+      "text": "P = I2 R"
+    }
+  ]
+}

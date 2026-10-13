@@ -1,0 +1,63 @@
+{
+  "name": "textbook-two-column",
+  "category": "textbook",
+  "file": "textbook-two-column.pdf",
+  "has_text_layer": true,
+  "pages": 1,
+  "blocks": [
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 1,
+      "text": "Chapter 4: Operational Amplifiers"
+    },
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 2,
+      "text": "4.1 The ideal op-amp"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "An operational amplifier is a voltage amplifier with a very high gain. In the ideal model the input current is zero and the gain is infinite, which makes circuit analysis simple."
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Two rules follow from the ideal model. No current flows into either input. With negative feedback the two inputs sit at the same voltage."
+    },
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 2,
+      "text": "4.2 The inverting amplifier"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "The input signal reaches the inverting input through a resistor. A second resistor feeds the output back to the same input, which sets the gain of the stage."
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Because the inverting input is held at zero volts, the current through the input resistor equals the current through the feedback resistor. The output is therefore the input scaled by the ratio of the two resistors, with the sign reversed."
+    },
+    {
+      "page": 1,
+      "type": "heading",
+      "level": 2,
+      "text": "4.3 The non-inverting amplifier"
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Here the signal drives the non-inverting input directly. The gain is one plus the ratio of the resistors, so this stage can never attenuate the signal."
+    },
+    {
+      "page": 1,
+      "type": "paragraph",
+      "text": "Its input impedance is very high, which makes it a good buffer between a sensor and the rest of a circuit."
+    }
+  ]
+}

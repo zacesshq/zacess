@@ -1,0 +1,70 @@
+{
+  "source": "Synthetic captures drawn with Pillow from text written for this repository: an off-white board with an illumination gradient and noise, marker text in the DejaVu Sans font with a slight wobble and blur, plus lined paper for the notes page. Nothing was photographed. The boards are saved as JPEG at quality 85, as a phone camera would save them. The notes page is saved as PNG.",
+  "captures": [
+    {
+      "file": "board-1-first.jpg",
+      "board": "fourier",
+      "expect": "new",
+      "text": [
+        "Week 3  Fourier series",
+        "f(t) = a0/2 + sum an cos(n w0 t) + bn sin(n w0 t)",
+        "T = 1/f0   and   w0 = 2 pi f0"
+      ]
+    },
+    {
+      "file": "board-2-relit.jpg",
+      "board": "fourier",
+      "expect": "repeat",
+      "text": [
+        "Week 3  Fourier series",
+        "f(t) = a0/2 + sum an cos(n w0 t) + bn sin(n w0 t)",
+        "T = 1/f0   and   w0 = 2 pi f0"
+      ]
+    },
+    {
+      "file": "board-3-added.jpg",
+      "board": "fourier",
+      "expect": "changed",
+      "text": [
+        "Week 3  Fourier series",
+        "f(t) = a0/2 + sum an cos(n w0 t) + bn sin(n w0 t)",
+        "T = 1/f0   and   w0 = 2 pi f0",
+        "an = (2/T) integral f(t) cos(n w0 t) dt"
+      ]
+    },
+    {
+      "file": "board-4-rewritten.jpg",
+      "board": "fourier",
+      "expect": "changed",
+      "text": [
+        "Week 3  Fourier series",
+        "f(t) = a0/2 + sum an cos(n w0 t) + bn sin(n w0 t)",
+        "square wave: only odd n, bn = 4/(n pi)",
+        "an = (2/T) integral f(t) cos(n w0 t) dt"
+      ]
+    },
+    {
+      "file": "board-5-new-topic.jpg",
+      "board": "laplace",
+      "expect": "changed",
+      "text": [
+        "Week 4  Laplace transform",
+        "F(s) = integral from 0 to inf of f(t) e^(-st) dt",
+        "step: 1/s    ramp: 1/s^2    e^(-at): 1/(s+a)"
+      ]
+    },
+    {
+      "file": "notes-1.png",
+      "board": "notes",
+      "expect": "new",
+      "text": [
+        "Fourier series notes",
+        "periodic signal = sum of sines",
+        "fundamental f0 = 1/T",
+        "harmonics at n f0",
+        "square wave: odd harmonics only",
+        "amplitude falls as 1/n"
+      ]
+    }
+  ]
+}

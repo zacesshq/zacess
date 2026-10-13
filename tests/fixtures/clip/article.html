@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Filters explained | Signals Weekly</title>
+  <link rel="stylesheet" href="/site.css">
+  <style>body { font-family: sans-serif; } .cookie-banner { position: fixed; }</style>
+  <script>window.track = function () { document.write("tracking text"); };</script>
+</head>
+<body>
+  <div class="cookie-banner" id="cookie-consent">
+    <p>We use cookies to improve your experience. <button>Accept all</button></p>
+  </div>
+  <header class="site-header">
+    <a href="/" class="logo"><img src="/logo.png" alt="Signals Weekly home"></a>
+    <nav aria-label="Main">
+      <ul><li><a href="/news">News</a></li><li><a href="/guides">Guides</a></li></ul>
+    </nav>
+  </header>
+  <div class="layout">
+    <article class="post">
+      <header>
+        <h1>How a low-pass filter works</h1>
+        <p class="byline">By the Signals Weekly team</p>
+      </header>
+      <div class="share-bar"><a href="https://social.example/share">Share this page</a></div>
+      <p>A low-pass filter lets slow changes through and smooths fast ones. Read the
+        <a href="/guides/rc-circuits">guide to RC circuits</a> first. Also see the
+        <a href="https://example.org/reference">reference tables</a>.</p>
+      <div class="ad-slot advert"><p>Buy the best oscilloscope today, limited offer!</p></div>
+      <figure>
+        <img src="/img/bode.png" alt="Bode plot falling at 20 dB per decade above the cut-off">
+        <figcaption>The response of a first order filter.</figcaption>
+      </figure>
+      <img src="/img/divider.png" alt="">
+      <img src="/img/unlabelled.png">
+      <img src="https://tracker.example/pixel.gif" width="1" height="1" alt="tracker">
+      <h2>The cut-off frequency</h2>
+      <p>The cut-off is where the output falls to 70.7% of the input, so f<sub>c</sub> = 1 / (2&pi;RC).
+        <span class="sr-only">Read aloud as f sub c.</span></p>
+      <blockquote><p>The capacitor is the memory of the circuit.</p></blockquote>
+      <pre><code>fc = 1 / (2 * pi * R * C)
+print(round(fc, 1))</code></pre>
+      <p hidden>This draft paragraph is hidden.</p>
+      <p style="display: none">Neither is this one.</p>
+      <p>Unsafe <a href="javascript:alert(1)">script link</a> text stays as text.</p>
+      <script>document.write("injected words");</script>
+      <footer class="post-footer"><p>Tags: filters, circuits</p></footer>
+    </article>
+    <aside class="sidebar">
+      <h2>Related articles</h2>
+      <ul><li><a href="/a">Ten amplifier myths</a></li></ul>
+    </aside>
+  </div>
+  <div id="newsletter-signup"><p>Sign up to our newsletter for weekly tips.</p><form><input type="email"></form></div>
+  <footer class="site-footer"><p>Copyright Signals Weekly. All rights reserved.</p></footer>
+</body>
+</html>

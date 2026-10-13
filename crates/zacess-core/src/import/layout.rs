@@ -405,8 +405,9 @@ fn runs_full(line: &Line, lines: &[Line]) -> bool {
         .map(|o| o.x1)
         .collect();
     edges.sort_by(f32::total_cmp);
+    // the near-maximum rather than the median, so short single-line items never count as full
     edges
-        .get(edges.len() / 2)
+        .get((edges.len() * 9 / 10).min(edges.len().saturating_sub(1)))
         .is_some_and(|edge| line.x1 >= edge - 4.0 * line.size)
 }
 

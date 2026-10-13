@@ -115,7 +115,6 @@ export function useReadAloud(
       if (h && sentence.range) h.registry.set(HIGHLIGHT, new h.Highlight(sentence.range));
       sentence.block.classList.add("zc-reading-block");
       marked.current = sentence.block;
-      sentence.block.scrollIntoView?.({ block: "nearest", behavior: "auto" });
       onSentence?.(sentence);
     },
     [clearMark, onSentence],

@@ -1,8 +1,9 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "@/App";
 import { availableVoices, pickVoice, sentencesOf } from "@/lib/speech";
+import { nearestScroll, revealSentence } from "@/lib/scroll";
 import { openFixture, reading } from "./helpers";
 import { installSpeech, LOCAL, LOCAL_2, ONLINE, removeSpeech } from "./speech-mock";
 
@@ -93,5 +94,77 @@ describe("read aloud", () => {
   it("says so when the browser has no speech", () => {
     render(<App />);
     expect(screen.getByText(/no speech voices/)).toBeInTheDocument();
+  });
+});
+
+describe("read aloud bar and scrolling", () => {
+  it("keeps the controls together in one bar above the document", async () => {
+    installSpeech();
+    const user = userEvent.setup();
+    render(<App />);
+    await openFixture(user, "notes.md");
+    const bar = screen.getByRole("group", { name: "Read aloud controls" });
+    expect(bar.className).toContain("sticky");
+    for (const name of ["Play", "Stop", "Previous sentence", "Next sentence"]) {
+      expect(within(bar).getByRole("button", { name })).toBeInTheDocument();
+    }
+    expect(within(bar).getByRole("slider", { name: "Speed" })).toBeInTheDocument();
+    // the bar comes before the document in the tab order
+    expect(bar.compareDocumentPosition(reading()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // the settings panel no longer repeats them
+    expect(screen.getAllByRole("slider", { name: "Speed" })).toHaveLength(1);
+  });
+
+  it("keeps the focus on the control that was used and does not scroll while the sentence is in view", async () => {
+    installSpeech();
+    const scrollBy = vi.spyOn(window, "scrollBy").mockImplementation(() => {});
+    const user = userEvent.setup();
+    render(<App />);
+    await openFixture(user, "notes.md");
+    await user.click(screen.getByRole("button", { name: "Play" }));
+    const pause = screen.getByRole("button", { name: "Pause" });
+    expect(document.activeElement).toBe(pause);
+    await user.click(screen.getByRole("button", { name: "Next sentence" }));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Next sentence" }));
+    expect(scrollBy).not.toHaveBeenCalled();
+    scrollBy.mockRestore();
+  });
+
+  it("scrolls by the least needed once the sentence has left the viewport", async () => {
+    installSpeech();
+    const scrollBy = vi.spyOn(window, "scrollBy").mockImplementation(() => {});
+    const rect = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const below = this.classList.contains("zc-reading-block");
+      const box = below ? { top: window.innerHeight + 40, bottom: window.innerHeight + 70 } : { top: 0, bottom: 0 };
+      return { ...box, left: 0, right: 0, width: 0, height: box.bottom - box.top, x: 0, y: box.top, toJSON() {} } as DOMRect;
+    });
+    const user = userEvent.setup();
+    render(<App />);
+    await openFixture(user, "notes.md");
+    await user.click(screen.getByRole("button", { name: "Play" }));
+    expect(scrollBy).toHaveBeenCalledTimes(1);
+    expect(scrollBy).toHaveBeenCalledWith({ top: 70, behavior: "auto" });
+    rect.mockRestore();
+    scrollBy.mockRestore();
+  });
+});
+
+describe("revealSentence", () => {
+  const view = { top: 0, bottom: 800 };
+  it("does nothing while the sentence is inside the viewport", () => {
+    const scrollBy = vi.fn();
+    revealSentence({ top: 120, bottom: 150 }, { top: 0, bottom: 60 }, 800, scrollBy);
+    expect(scrollBy).not.toHaveBeenCalled();
+    expect(nearestScroll({ top: 0, bottom: 800 }, view)).toBe(0);
+  });
+  it("scrolls up or down by the least distance and clears the sticky bar", () => {
+    const scrollBy = vi.fn();
+    revealSentence({ top: 820, bottom: 850 }, null, 800, scrollBy);
+    expect(scrollBy).toHaveBeenLastCalledWith(50);
+    revealSentence({ top: 10, bottom: 40 }, { top: 0, bottom: 90 }, 800, scrollBy);
+    expect(scrollBy).toHaveBeenLastCalledWith(-80);
+  });
+  it("aligns the top of a sentence taller than the viewport", () => {
+    expect(nearestScroll({ top: 100, bottom: 1200 }, view)).toBe(100);
   });
 });

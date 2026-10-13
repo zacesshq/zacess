@@ -25,6 +25,8 @@ import { ExportPanel } from "@/components/ExportPanel";
 import { OpenPanel } from "@/components/OpenPanel";
 import { ProfilePanel, STANDARD } from "@/components/ProfilePanel";
 import { ReadAloudPanel } from "@/components/ReadAloudPanel";
+import { ReadAloudBar } from "@/components/ReadAloudBar";
+import { revealSentence } from "@/lib/scroll";
 import { ReadingView, VIEW_SCOPE, type ReadingViewHandle } from "@/components/ReadingView";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
@@ -43,6 +45,7 @@ const footerLinks: [string, string][] = [
 
 const OPEN_PANEL = "panel-open";
 const SETTINGS_PANEL = "panel-settings";
+const READ_ALOUD_BAR = "read-aloud-bar";
 
 type Base = PresetId | typeof STANDARD;
 
@@ -92,6 +95,7 @@ export default function App() {
   const view = useRef<ReadingViewHandle>(null);
   const root = useRef<HTMLElement | null>(null);
   const position = useRef<Element | null>(null);
+  const barRef = useRef<HTMLDivElement>(null);
 
   const baseProfile = base === STANDARD ? standard : (presets.find((p) => p.id === base)?.profile ?? standard);
   const adjusted = !sameSettings(profile, baseProfile);
@@ -99,6 +103,14 @@ export default function App() {
   const followSentence = useCallback((sentence: Sentence | null) => {
     const rect = sentence?.range?.getBoundingClientRect?.() ?? sentence?.block.getBoundingClientRect() ?? null;
     view.current?.follow(rect);
+    // the page only moves when the sentence has left the viewport. It then moves by the least
+    // that brings it back, so Speed and Pause stay where they were pressed
+    if (rect) {
+      const bar = barRef.current?.getBoundingClientRect();
+      revealSentence(rect, bar ? { top: bar.top, bottom: bar.bottom } : null, window.innerHeight, (dy) =>
+        window.scrollBy({ top: dy, behavior: "auto" }),
+      );
+    }
   }, []);
 
   // the read-aloud hook reads these at the moment Play is pressed
@@ -273,7 +285,7 @@ export default function App() {
             <Button
               size="sm"
               aria-expanded={!collapsed}
-              aria-controls={`${OPEN_PANEL} ${SETTINGS_PANEL}`}
+              aria-controls={reader.supported ? `${OPEN_PANEL} ${SETTINGS_PANEL} ${READ_ALOUD_BAR}` : `${OPEN_PANEL} ${SETTINGS_PANEL}`}
               onClick={togglePanel}
             >
               {collapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
@@ -323,6 +335,14 @@ export default function App() {
             ) : null}
           </div>
           <div className={cn("min-w-0", !collapsed && "md:col-start-2 md:row-span-2 md:row-start-1")}>
+            {document_ ? (
+              <ReadAloudBar
+                ref={barRef}
+                id={READ_ALOUD_BAR}
+                reader={reader}
+                hidden={collapsed}
+              />
+            ) : null}
             <ReadingView ref={view} html={html} css={css} profile={profile} title={document_?.title ?? null} summary={summary} />
           </div>
           <div id={SETTINGS_PANEL} hidden={collapsed} className="grid min-w-0 gap-8 md:col-start-1 md:row-start-2">
@@ -335,7 +355,7 @@ export default function App() {
               onPreset={choosePreset}
               onChange={changeProfile}
             />
-            <ReadAloudPanel reader={reader} hasDocument={Boolean(document_)} />
+            <ReadAloudPanel reader={reader} />
             <ExportPanel disabled={!document_} onExport={exportAs} message={exported} />
           </div>
         </div>

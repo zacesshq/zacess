@@ -45,26 +45,40 @@ pub fn split_at_links(item: TextItem, links: &[LinkInput]) -> Vec<TextItem> {
         return vec![item];
     }
     let per_char = item.width / n as f32;
+    // the words of the item as char ranges
+    let mut words: Vec<(usize, usize)> = Vec::new();
+    let mut i = 0;
+    while i < n {
+        if chars[i].is_whitespace() {
+            i += 1;
+            continue;
+        }
+        let from = i;
+        while i < n && !chars[i].is_whitespace() {
+            i += 1;
+        }
+        words.push((from, i));
+    }
     for (i, link) in links.iter().enumerate() {
         if !on_link_line(&item, link) {
             continue;
         }
-        let x0 = item.x.max(link.x);
-        let x1 = (item.x + item.width).min(link.x + link.width);
-        if x1 <= x0 {
+        // a word belongs to the link only when most of its width lies inside the box, so a box
+        // that merely touches a neighbouring word leaves that word out
+        let inside: Vec<(usize, usize)> = words
+            .iter()
+            .copied()
+            .filter(|&(from, to)| {
+                let w0 = item.x + from as f32 * per_char;
+                let w1 = item.x + to as f32 * per_char;
+                let overlap = w1.min(link.x + link.width) - w0.max(link.x);
+                overlap * 2.0 > w1 - w0
+            })
+            .collect();
+        let (Some(first), Some(last)) = (inside.first(), inside.last()) else {
             continue;
-        }
-        let mut start = (((x0 - item.x) / per_char).round() as usize).min(n);
-        let mut end = (((x1 - item.x) / per_char).round() as usize).min(n);
-        if end <= start {
-            continue;
-        }
-        while start > 0 && !chars[start - 1].is_whitespace() {
-            start -= 1;
-        }
-        while end < n && !chars[end].is_whitespace() {
-            end += 1;
-        }
+        };
+        let (start, end) = (first.0, last.1);
         if start == 0 && end == n {
             return vec![item];
         }
@@ -90,7 +104,8 @@ pub fn split_at_links(item: TextItem, links: &[LinkInput]) -> Vec<TextItem> {
     vec![item]
 }
 
-/// Gives every run whose middle lies inside a link area that area's address.
+/// Gives every run most of whose width lies inside a link area that area's address. The run's
+/// middle must also sit on the area's lines.
 pub fn attach_links(document: &mut Document, links: &[(u32, LinkInput)]) {
     if links.is_empty() {
         return;
@@ -99,11 +114,11 @@ pub fn attach_links(document: &mut Document, links: &[(u32, LinkInput)]) {
         for run in block.runs_mut() {
             let Some(origin) = run.origin else { continue };
             let r = origin.region;
-            let (cx, cy) = (r.x + r.width / 2.0, r.y + r.height / 2.0);
+            let cy = r.y + r.height / 2.0;
             let found = links.iter().find(|(page, l)| {
+                let overlap = (r.x + r.width).min(l.x + l.width) - r.x.max(l.x);
                 *page == origin.page
-                    && cx >= l.x
-                    && cx <= l.x + l.width
+                    && overlap * 2.0 > r.width
                     && cy >= l.y - r.height * 0.25
                     && cy <= l.y + l.height + r.height * 0.25
             });
@@ -117,24 +132,51 @@ pub fn attach_links(document: &mut Document, links: &[(u32, LinkInput)]) {
 /// Characters that end a sentence or a bracket rather than an address.
 const TRAILING: &[char] = &['.', ',', ';', ':', '!', '?', '\'', '"', ']', '}', '>', ')'];
 
-/// The byte ranges of bare web addresses in a piece of text.
-pub fn find_addresses(text: &str) -> Vec<(usize, usize)> {
-    let lower = text.to_ascii_lowercase();
-    let mut found = Vec::new();
-    let mut from = 0;
-    while from < text.len() {
-        let next = ["http://", "https://"]
-            .iter()
-            .filter_map(|s| lower[from..].find(s).map(|i| (from + i, s.len())))
-            .min();
-        let Some((start, scheme)) = next else { break };
-        let boundary = text[..start]
+/// Characters that may open an address without belonging to it.
+const LEADING: &[char] = &['(', '[', '<', '"', '\'', '{'];
+
+fn is_email(text: &str) -> bool {
+    let Some((local, domain)) = text.split_once('@') else {
+        return false;
+    };
+    let local_ok = !local.is_empty()
+        && local
             .chars()
-            .next_back()
-            .is_none_or(|c| c.is_whitespace() || "([<\"'".contains(c));
-        let mut end = text[start..]
-            .find(char::is_whitespace)
-            .map_or(text.len(), |i| start + i);
+            .all(|c| c.is_ascii_alphanumeric() || "._%+-".contains(c));
+    let labels: Vec<&str> = domain.split('.').collect();
+    let domain_ok = labels.len() >= 2
+        && labels
+            .iter()
+            .all(|l| !l.is_empty() && l.chars().all(|c| c.is_ascii_alphanumeric() || c == '-'))
+        && labels
+            .last()
+            .is_some_and(|t| t.len() >= 2 && t.chars().all(|c| c.is_ascii_alphabetic()));
+    local_ok && domain_ok
+}
+
+/// The address a bare piece of text links to: web addresses and `mailto:` addresses as written,
+/// a bare email address as a `mailto:` link.
+pub fn address_link(text: &str) -> String {
+    let lower = text.to_ascii_lowercase();
+    if lower.starts_with("http://") || lower.starts_with("https://") || lower.starts_with("mailto:")
+    {
+        text.to_string()
+    } else {
+        format!("mailto:{text}")
+    }
+}
+
+/// The byte ranges of bare web, `mailto:` and email addresses in a piece of text.
+pub fn find_addresses(text: &str) -> Vec<(usize, usize)> {
+    let mut found = Vec::new();
+    let mut at = 0;
+    for token in text.split_inclusive(char::is_whitespace) {
+        let base = at;
+        at += token.len();
+        let word = token.trim_end_matches(char::is_whitespace);
+        let lead = word.len() - word.trim_start_matches(LEADING).len();
+        let start = base + lead;
+        let mut end = base + word.len();
         // a closing bracket belongs to the address only when the address opened one
         while let Some(last) = text[start..end].chars().next_back() {
             let candidate = &text[start..end];
@@ -146,10 +188,20 @@ pub fn find_addresses(text: &str) -> Vec<(usize, usize)> {
                 break;
             }
         }
-        if boundary && end > start + scheme {
+        let candidate = &text[start..end];
+        let lower = candidate.to_ascii_lowercase();
+        let ok = if lower.starts_with("https://") {
+            candidate.len() > "https://".len()
+        } else if lower.starts_with("http://") {
+            candidate.len() > "http://".len()
+        } else if lower.starts_with("mailto:") {
+            is_email(candidate["mailto:".len()..].split('?').next().unwrap_or(""))
+        } else {
+            is_email(candidate)
+        };
+        if ok {
             found.push((start, end));
         }
-        from = end.max(start + scheme);
     }
     found
 }
@@ -176,7 +228,7 @@ fn link_runs(runs: &mut Vec<Run>) {
             }
             out.push(Run {
                 text: run.text[start..end].to_string(),
-                link: Some(run.text[start..end].to_string()),
+                link: Some(address_link(&run.text[start..end])),
                 ..run.clone()
             });
             at = end;

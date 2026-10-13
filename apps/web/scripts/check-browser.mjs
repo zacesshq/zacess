@@ -2,7 +2,10 @@
 // with a text layer and a scanned page through OCR, changes the reading profile and exports HTML.
 // Every screen is checked with axe-core (WCAG 2.2 A and AA, plus AAA contrast in the reading
 // view), the page must never scroll sideways and every request must stay on the app's own origin.
-// Screenshots at 1280 and 375 pixels wide, light and dark, are written to test-results/.
+// Screenshots at 1280 and 375 pixels wide, light and dark, are written to test-results/. Then the
+// first screen and an open document are checked in WebKit, the engine of every iPhone and iPad
+// browser, on phone and tablet profiles: axe, no sideways scroll, 44 pixel controls, 16 pixel
+// text fields and the camera control.
 //
 //   npm run build && node scripts/check-browser.mjs
 //
@@ -11,7 +14,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, devices, webkit } from "playwright";
 import { preview } from "vite";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -59,7 +62,7 @@ async function noSideways(page, label) {
 }
 
 async function openFile(page, path, expectText, timeout = 30_000) {
-  await page.locator('input[type="file"]').setInputFiles(path);
+  await page.getByTestId("file-input").setInputFiles(path);
   try {
     // the status names the file, so text left from the previous document cannot satisfy the wait
     await page.getByText(`Opened ${basename(path)}.`, { exact: true }).waitFor({ timeout });
@@ -166,10 +169,59 @@ async function session(scheme, width) {
   await context.close();
 }
 
+const CONTROLS = 'a[href], button, input:not([type=hidden]):not([type=file]), select, textarea, [role="slider"], [role="switch"], [role="radio"]';
+
+async function touchSession(engine, device, scheme) {
+  const label = `${scheme} ${device} (${engine === webkit ? "WebKit" : "Chromium"})`;
+  console.log(`${label}:`);
+  const browser = await engine.launch();
+  const context = await browser.newContext({ ...devices[device], colorScheme: scheme, reducedMotion: "reduce" });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  const touch = async (what) => {
+    await axe(page, `${label} ${what}`);
+    await noSideways(page, `${label} ${what}`);
+    const { small, fields } = await page.evaluate((selector) => {
+      const small = [];
+      const fields = [];
+      for (const el of document.querySelectorAll(selector)) {
+        if (el.closest("[hidden]") || el.closest(".zc-doc")) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue;
+        // a link inside a sentence of the footer keeps its size, as WCAG allows
+        if (el.tagName === "A" && getComputedStyle(el).display === "inline" && el.closest("p")) continue;
+        if (r.width < 43.5 || r.height < 43.5) small.push(`${el.tagName.toLowerCase()} "${(el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 30)}" ${Math.round(r.width)}x${Math.round(r.height)}`);
+        if (/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && parseFloat(getComputedStyle(el).fontSize) < 16) fields.push(el.tagName);
+      }
+      return { small, fields };
+    }, CONTROLS);
+    for (const s of small) fail(`${label} ${what}: control under 44 pixels: ${s}`);
+    for (const f of fields) fail(`${label} ${what}: ${f} text under 16 pixels, which makes Safari zoom`);
+  };
+  await page.goto(base);
+  await page.getByRole("button", { name: "Choose a file" }).waitFor();
+  await touch("first screen");
+  const camera = page.getByTestId("camera-input");
+  if ((await camera.getAttribute("accept")) !== "image/*" || (await camera.getAttribute("capture")) !== "environment") {
+    fail(`${label}: no camera control on a touch screen`);
+  }
+  await openFile(page, join(web, "src/test/fixtures/notes.md"), "Any periodic signal");
+  await touch("document open");
+  await page.screenshot({ path: join(out, `touch-${device.replace(/ /g, "-")}-${scheme}.png`), fullPage: true });
+  for (const e of errors) fail(`${label}: page error: ${e}`);
+  await context.close();
+  await browser.close();
+}
+
 try {
   for (const scheme of ["light", "dark"]) {
     for (const width of [1280, 375]) await session(scheme, width);
   }
+  for (const scheme of ["light", "dark"]) {
+    for (const device of ["iPhone SE", "iPhone 14", "iPad Mini", "iPad Pro 11 landscape"]) await touchSession(webkit, device, scheme);
+  }
+  await touchSession(chromium, "Galaxy S9+", "light");
 } finally {
   await browser.close();
   await new Promise((done) => server.httpServer.close(done));

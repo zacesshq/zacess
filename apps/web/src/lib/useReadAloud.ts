@@ -72,13 +72,27 @@ export function useReadAloud(
   const index = useRef(0);
   const run = useRef(0);
   const marked = useRef<Element | null>(null);
+  // held so the browser cannot collect the utterance before its end event, which stops reading early
+  const speaking = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
     if (!synth) return;
     const update = () => setAllVoices(synth.getVoices());
     update();
     synth.addEventListener?.("voiceschanged", update);
-    return () => synth.removeEventListener?.("voiceschanged", update);
+    // the voices load after the page. Some WebKit builds fill the list without firing
+    // voiceschanged, so it is looked at again for a few seconds until it has voices
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries++;
+      const found = synth.getVoices();
+      if (found.length) setAllVoices(found);
+      if (found.length || tries >= 20) clearInterval(timer);
+    }, 250);
+    return () => {
+      clearInterval(timer);
+      synth.removeEventListener?.("voiceschanged", update);
+    };
   }, [synth]);
 
   const voices = availableVoices(allVoices, allowOnline);
@@ -142,6 +156,7 @@ export function useReadAloud(
         clearMark();
         setError("The voice stopped with an error. Try another voice.");
       };
+      speaking.current = utterance;
       synth.speak(utterance);
     },
     [synth, mark, clearMark, language, onSentence],
@@ -161,7 +176,9 @@ export function useReadAloud(
       setError("There is nothing to read yet. Open a document first.");
       return;
     }
-    synth.cancel();
+    // Safari can drop a sentence spoken straight after a cancel, so nothing is cancelled when nothing is
+    // speaking. The first sentence is spoken within the tap, which iPhone and iPad require
+    if (synth.speaking || synth.pending) synth.cancel();
     setState("playing");
     speakFrom(indexFrom(sentences.current, position.current));
   }, [synth, root, position, language, state, speakFrom, readAddresses]);

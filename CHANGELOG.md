@@ -8,10 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Fixed
 
+- A braille translator that rejects its tables and exits before reading the text now reports its own error. Before this the write failed with a broken pipe and the run could fail at random.
 - The repository link in `Cargo.toml` now points at this repository.
 
 ### Added
 
+- A hide and show control for the settings panel, a colour mode menu with System as the default and links to the website in the browser version.
+- Phone and tablet support in the browser version: touch sized controls, a Take a photo button, safe area spacing, an installable manifest and checks on WebKit and Chromium.
 - Read-only copies of `crates/zacess-core`, `crates/zacess-quality` and `apps/app` in the `core`, `quality` and `app` repositories, each with its own README and licence.
 - Issue forms for bugs, feature requests and accessibility barriers, a pull request template with an accessibility checklist, CODEOWNERS and Dependabot.
 - The changelog, code of conduct, security policy, support guide, licensing notice, EditorConfig, Git attributes and markdown linting.

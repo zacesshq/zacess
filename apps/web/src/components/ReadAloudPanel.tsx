@@ -49,7 +49,7 @@ export function ReadAloudPanel({ reader, hasDocument }: { reader: ReadAloud; has
         ) : (
           <p>
             {reader.allVoices.length > 0
-              ? "No voices on this device. Online voices are available below."
+              ? "No built-in voices were found. Online voices are available below."
               : "No voices have loaded yet."}
           </p>
         )}
@@ -66,8 +66,7 @@ export function ReadAloudPanel({ reader, hasDocument }: { reader: ReadAloud; has
           />
         </div>
         <p id={onlineHint} className="text-sm text-muted">
-          Off by default. An online voice sends the text it reads to the company that provides the voice. Voices on this
-          device keep everything here.
+          Off by default. An online voice sends the text it reads to the company that provides the voice.
         </p>
       </div>
 

@@ -1,0 +1,59 @@
+name: Bug report
+description: Something in Zacess does not work as documented.
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Core
+        - Browser version (apps/web)
+        - Apps
+        - Exports
+        - OCR and import
+        - Read aloud
+        - Reading profiles
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, including any error message.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: For an import or OCR problem, attach the page only if you are allowed to share it.
+      placeholder: |
+        1. Open a scanned PDF
+        2. Choose the Large Print preset
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Device and version
+      description: The operating system, the browser for the browser version and the Zacess version or commit.
+      placeholder: macOS 26, Safari 26, app.zacess.com
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and discussions for this problem.
+          required: true
+        - label: I have read the [Code of Conduct](https://github.com/zacesshq/.github/blob/main/CODE_OF_CONDUCT.md).
+          required: true

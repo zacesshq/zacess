@@ -31,12 +31,21 @@ flowchart LR
     Core --> Lib["Local library, synced later"]
 ```
 
+## Browser version
+
+The first usable slice runs in a web browser, entirely on the device: open a PDF, an image, a Word
+file, a web page or pasted text, read it in a reading profile, listen to it and export accessible
+HTML or EPUB. How it is built, what it keeps private and how it is checked are in
+[Browser version](docs/browser-version.md).
+
 ## Planned layout
 
 | Path | What lives there |
 | --- | --- |
 | `crates/zacess-core` | The Rust engine: document model, reading profiles, import, export |
 | `crates/zacess-quality` | The scorer for the document quality test suite |
+| `crates/zacess-wasm` | The core compiled to WebAssembly for the browser version |
+| `apps/web` | The browser version: React, shadcn/ui and the core as WebAssembly. See [Browser version](docs/browser-version.md) |
 | `apps/app` | The app for every platform (Tauri with a TypeScript interface) |
 | `workers/processing` | Python workers for heavy layout and OCR jobs |
 | `tests/fixtures` | The document quality test suite and the sample audio, images and web pages for the speech and capture tests |

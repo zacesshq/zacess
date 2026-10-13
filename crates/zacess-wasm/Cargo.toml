@@ -1,0 +1,23 @@
+[package]
+name = "zacess-wasm"
+description = "The Zacess engine for the browser, compiled to WebAssembly"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# the browser keeps nothing on disk yet, so the SQLite library store is left out
+zacess-core = { path = "../zacess-core", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.129"
+# the PDF reader the core links draws random numbers through getrandom, which needs the
+# browser's crypto source named explicitly on this target
+getrandom = { version = "0.4", features = ["wasm_js"] }

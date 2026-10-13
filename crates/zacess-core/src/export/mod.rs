@@ -36,6 +36,9 @@ pub struct ExportOptions<'a> {
     pub title: Option<String>,
     /// Where image assets named by the document live, so an export can bundle or check them.
     pub asset_dir: Option<&'a Path>,
+    /// When the export was made, in Unix seconds. The system clock when `None`. WebAssembly in a
+    /// browser has no clock of its own, so the browser build passes the page's.
+    pub modified: Option<u64>,
 }
 
 impl ExportOptions<'_> {

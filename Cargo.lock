@@ -290,9 +290,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "r-efi",
  "rand_core",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -918,6 +920,17 @@ version = "0.0.0"
 dependencies = [
  "serde",
  "serde_json",
+ "zacess-core",
+]
+
+[[package]]
+name = "zacess-wasm"
+version = "0.0.0"
+dependencies = [
+ "getrandom",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
  "zacess-core",
 ]
 

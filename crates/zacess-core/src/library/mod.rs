@@ -7,17 +7,27 @@
 //! moves it to the bin. It is gone only after thirty days or once the person empties the bin.
 //! The whole library exports to open formats, see [`export`] and `docs/library.md`.
 
+#[cfg(feature = "library")]
 pub mod clips;
+#[cfg(feature = "library")]
 pub mod export;
 
-use crate::model::{BlockId, Document};
+use crate::model::BlockId;
+#[cfg(feature = "library")]
+use crate::model::Document;
+#[cfg(feature = "library")]
 use crate::profile::ReadingProfile;
+#[cfg(feature = "library")]
 use crate::recording::RecordingEntry;
+#[cfg(feature = "library")]
 use crate::study::{Deck, Plan};
+#[cfg(feature = "library")]
 use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+#[cfg(feature = "library")]
 use std::path::Path;
+#[cfg(feature = "library")]
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// The version of the database layout written by this build.
@@ -25,6 +35,7 @@ pub const LIBRARY_SCHEMA_VERSION: u32 = 4;
 /// How long a deleted item stays in the bin before it is removed for good.
 pub const BIN_RETENTION_SECS: i64 = 30 * 24 * 60 * 60;
 
+#[cfg(feature = "library")]
 const SCHEMA: &str = "
 CREATE TABLE IF NOT EXISTS meta (
     key TEXT PRIMARY KEY,
@@ -52,6 +63,7 @@ CREATE INDEX IF NOT EXISTS items_by_kind ON items(kind, deleted_at, updated_at);
 
 /// Makes the items table again with every current kind allowed, keeping every row. Version 1 lacked
 /// the recording kind, version 2 the deck and study plan kinds and version 3 the clip kind.
+#[cfg(feature = "library")]
 const MIGRATE_TO_4: &str = "
 BEGIN;
 CREATE TABLE items_new (
@@ -73,6 +85,7 @@ COMMIT;
 
 #[derive(Debug, thiserror::Error)]
 pub enum LibraryError {
+    #[cfg(feature = "library")]
     #[error("library database: {0}")]
     Database(#[from] rusqlite::Error),
     #[error("library content: {0}")]
@@ -99,6 +112,7 @@ pub enum LibraryError {
     Export(String),
 }
 
+#[cfg(feature = "library")]
 type Result<T> = std::result::Result<T, LibraryError>;
 
 /// The identity of an item, stable for its whole life including exports and imports.
@@ -140,6 +154,7 @@ impl ItemKind {
     }
 
     /// The start of every id of this kind, so an id says what it is.
+    #[cfg_attr(not(feature = "library"), allow(dead_code))]
     fn id_prefix(self) -> &'static str {
         match self {
             ItemKind::Document => "d",
@@ -152,6 +167,7 @@ impl ItemKind {
         }
     }
 
+    #[cfg_attr(not(feature = "library"), allow(dead_code))]
     fn parse(text: &str) -> Option<Self> {
         match text {
             "document" => Some(ItemKind::Document),
@@ -222,12 +238,14 @@ pub struct StorageUsage {
     pub bin_items: u64,
 }
 
+#[cfg(feature = "library")]
 pub struct Library {
     conn: Connection,
     clock: Box<dyn Fn() -> i64 + Send>,
     counter: u32,
 }
 
+#[cfg(feature = "library")]
 impl fmt::Debug for Library {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Library")
@@ -236,6 +254,7 @@ impl fmt::Debug for Library {
     }
 }
 
+#[cfg(feature = "library")]
 fn system_now() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -251,6 +270,7 @@ pub(crate) fn content_hash(content: &str) -> String {
     format!("{hash:016x}")
 }
 
+#[cfg(feature = "library")]
 impl Library {
     /// Opens the library file, creating it when it does not exist.
     pub fn open(path: &Path) -> Result<Self> {
@@ -750,6 +770,7 @@ impl Library {
     }
 }
 
+#[cfg(feature = "library")]
 /// A plan's title in the library, as a plan need not have a name.
 fn plan_title(plan: &Plan) -> String {
     if plan.name.trim().is_empty() {
@@ -759,6 +780,7 @@ fn plan_title(plan: &Plan) -> String {
     }
 }
 
+#[cfg(feature = "library")]
 fn row_to_info(r: &rusqlite::Row<'_>) -> rusqlite::Result<ItemInfo> {
     let kind: String = r.get(1)?;
     Ok(ItemInfo {
@@ -772,7 +794,7 @@ fn row_to_info(r: &rusqlite::Row<'_>) -> rusqlite::Result<ItemInfo> {
     })
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "library"))]
 mod tests {
     use super::*;
     use crate::model::{BlockKind, Origin, Rect, Run, Source, SourceFormat};

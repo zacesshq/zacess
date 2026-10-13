@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest something Zacess should do.
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Core
+        - Browser version (apps/web)
+        - Apps
+        - Exports
+        - OCR and import
+        - Read aloud
+        - Reading profiles
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that Zacess makes hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: How you would like it to work.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked the [roadmap](https://zacess.com/roadmap/) and existing issues.
+          required: true

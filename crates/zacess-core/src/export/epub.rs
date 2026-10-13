@@ -62,7 +62,7 @@ pub fn epub_files(
 
     files.push((
         "EPUB/package.opf".into(),
-        package_opf(document, &title, lang, outline, &assets).into_bytes(),
+        package_opf(document, &title, lang, outline, &assets, options.modified).into_bytes(),
     ));
     files.push((
         "EPUB/nav.xhtml".into(),
@@ -92,6 +92,7 @@ fn package_opf(
     lang: &str,
     outline: &super::Outline,
     assets: &[String],
+    modified: Option<u64>,
 ) -> String {
     let mut metadata = String::new();
     let mut meta = |property: &str, value: &str| {
@@ -100,7 +101,10 @@ fn package_opf(
             escape(value)
         ));
     };
-    meta("dcterms:modified", &iso_now());
+    meta(
+        "dcterms:modified",
+        &iso_time(modified.unwrap_or_else(now_secs)),
+    );
     meta("schema:accessMode", "textual");
     if outline.has_images {
         meta("schema:accessMode", "visual");
@@ -309,12 +313,15 @@ fn fnv1a(bytes: &[u8], seed: u64) -> u64 {
     })
 }
 
-/// The current time as `dcterms:modified` wants it, without a date dependency.
-fn iso_now() -> String {
-    let secs = SystemTime::now()
+fn now_secs() -> u64 {
+    SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
-        .unwrap_or(0);
+        .unwrap_or(0)
+}
+
+/// A time in Unix seconds as `dcterms:modified` wants it, without a date dependency.
+fn iso_time(secs: u64) -> String {
     let (days, rem) = (secs / 86_400, secs % 86_400);
     let (h, m, s) = (rem / 3600, rem % 3600 / 60, rem % 60);
     // days since 1970-01-01 to a civil date, per Howard Hinnant's algorithm
@@ -391,6 +398,21 @@ mod tests {
         assert_eq!(modified.as_bytes()[4], b'-');
         assert_eq!(modified.as_bytes()[10], b'T');
         assert_eq!(modified.as_bytes()[19], b'Z');
+    }
+
+    #[test]
+    fn the_modified_time_can_be_given_by_the_caller() {
+        assert_eq!(iso_time(0), "1970-01-01T00:00:00Z");
+        assert_eq!(iso_time(1_791_883_805), "2026-10-13T09:30:05Z");
+        let options = ExportOptions {
+            modified: Some(1_791_883_805),
+            ..ExportOptions::default()
+        };
+        let files = epub_files(&doc(), &options).unwrap();
+        assert!(
+            text_of(&files, "EPUB/package.opf")
+                .contains("<meta property=\"dcterms:modified\">2026-10-13T09:30:05Z</meta>")
+        );
     }
 
     #[test]

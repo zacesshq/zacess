@@ -18,10 +18,14 @@ pub mod study;
 pub mod sync;
 pub mod timeline;
 
-pub use clip::{CaptureOutcome, CaptureRequest, ClipEntry, ClipError, capture_into};
+#[cfg(feature = "library")]
+pub use clip::capture_into;
+pub use clip::{CaptureOutcome, CaptureRequest, ClipEntry, ClipError};
 pub use confidence::{NUMERIC_THRESHOLD, WORD_THRESHOLD, flags_for, needs_checking};
 pub use import::{ImportError, Imported, import_file};
-pub use library::{ItemId, ItemKind, Library, LibraryError, Note};
+#[cfg(feature = "library")]
+pub use library::Library;
+pub use library::{ItemId, ItemKind, LibraryError, Note};
 pub use model::{
     Annotation, AnnotationKind, Block, BlockId, BlockKind, Confidence, Document, ListItem,
     ModelError, Origin, Page, Provenance, RanOn, Rect, Run, RunStatus, SCHEMA_VERSION, Script,

@@ -6,7 +6,7 @@ members = ["crates/*"]
 version = "0.0.0"
 edition = "2024"
 license = "AGPL-3.0-only"
-repository = "https://github.com/zacesss/zacess"
+repository = "https://github.com/zacesshq/zacess"
 publish = false
 
 # the browser build downloads the core on every first visit, so it is optimised for size

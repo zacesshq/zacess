@@ -211,9 +211,18 @@ impl BrailleTranslator for LibLouis {
             .map_err(|e| {
                 ExportError::Braille(format!("running {}: {e}", self.command.display()))
             })?;
+        // a translator that rejects its tables exits before reading the text, so the write can fail
+        // with a broken pipe. That is not the error to report: its exit status and stderr are
+        let mut closed_early = false;
         if let Some(mut stdin) = child.stdin.take() {
-            stdin.write_all(text.as_bytes())?;
-            stdin.write_all(b"\n")?;
+            let written = stdin
+                .write_all(text.as_bytes())
+                .and_then(|()| stdin.write_all(b"\n"));
+            match written {
+                Ok(()) => {}
+                Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => closed_early = true,
+                Err(e) => return Err(e.into()),
+            }
         }
         let output = child.wait_with_output()?;
         if !output.status.success() {
@@ -222,6 +231,11 @@ impl BrailleTranslator for LibLouis {
                 "lou_translate failed: {}",
                 stderr.trim()
             )));
+        }
+        if closed_early {
+            return Err(ExportError::Braille(
+                "lou_translate stopped reading before the text was sent".into(),
+            ));
         }
         Ok(String::from_utf8_lossy(&output.stdout)
             .trim_end_matches(['\n', '\r'])
@@ -1036,6 +1050,29 @@ mod tests {
             lines.contains(&"  FIRST LINE SECOND LINE".to_string()),
             "{lines:?}"
         );
+    }
+
+    // a translator that rejects its tables exits without reading any text. The text is large so the
+    // write meets the closed pipe every time, which is the case that used to come back as an I/O error
+    #[cfg(unix)]
+    #[test]
+    fn a_translator_that_exits_without_reading_reports_its_own_error() {
+        use std::os::unix::fs::PermissionsExt;
+        let dir = std::env::temp_dir().join(format!("zacess-louis-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let script = dir.join("lou_translate");
+        std::fs::write(&script, "#!/bin/sh\necho 'no such table' >&2\nexit 1\n").unwrap();
+        std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o755)).unwrap();
+        let louis = LibLouis {
+            command: script.clone(),
+        };
+        let text = "word ".repeat(1_000_000);
+        let result = louis.translate(&text, "no-such-table.ctb");
+        std::fs::remove_dir_all(&dir).ok();
+        match result {
+            Err(ExportError::Braille(message)) => assert!(message.contains("no such table")),
+            other => panic!("expected the translator's own error, got {other:?}"),
+        }
     }
 
     #[test]

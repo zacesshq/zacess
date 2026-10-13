@@ -393,6 +393,14 @@ fn line_pitch(lines: &[Line]) -> Option<f32> {
     Some(gaps[gaps.len() / 2])
 }
 
+/// Whether every run of a line comes from a text layer. Recognised text has uneven line widths
+/// and spacing, so the loose-leading rule is left to text that was typed into the file.
+fn is_native(line: &Line) -> bool {
+    line.runs
+        .iter()
+        .all(|r| r.confidence == Confidence::CERTAIN)
+}
+
 /// Whether a line runs to the right edge its column keeps, which marks it as wrapped on to the
 /// next line rather than the last line of a paragraph or a line of its own.
 fn runs_full(line: &Line, lines: &[Line]) -> bool {
@@ -437,6 +445,8 @@ fn group_blocks(lines: Vec<Line>) -> Vec<Block> {
                                 && gap <= PITCH_TOLERANCE * p
                                 && gap <= 3.0 * size
                                 && gap >= 0.85 * p
+                                && is_native(last)
+                                && is_native(&line)
                                 && runs_full(last, &lines)
                         }));
                 (same_size && close && overlap > 0.2 * size).then_some((block, overlap))

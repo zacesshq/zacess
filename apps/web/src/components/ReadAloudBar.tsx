@@ -25,7 +25,7 @@ export const ReadAloudBar = forwardRef<HTMLDivElement, { reader: ReadAloud; hidd
         hidden={hidden}
         role="group"
         aria-label="Read aloud controls"
-        className="sticky top-0 z-20 mb-4 grid gap-2 border-2 border-fg bg-bg p-2 sm:grid-cols-[auto_minmax(10rem,1fr)] sm:items-center sm:gap-x-4"
+        className="sticky top-0 z-20 mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-2 border-fg bg-bg p-2"
       >
         <div className="flex gap-2">
           {reader.state === "playing" ? (
@@ -50,6 +50,7 @@ export const ReadAloudBar = forwardRef<HTMLDivElement, { reader: ReadAloud; hidd
             <SkipForward aria-hidden="true" />
           </Button>
         </div>
+        <div className="min-w-40 flex-1">
         <SliderField
           label="Speed"
           value={reader.rate}
@@ -59,11 +60,12 @@ export const ReadAloudBar = forwardRef<HTMLDivElement, { reader: ReadAloud; hidd
           shown={`${reader.rate.toFixed(1)} times`}
           onChange={(v) => reader.setRate(Number(v.toFixed(1)))}
         />
-        <p className="m-0 text-sm sm:col-span-2" role="status">
+        </div>
+        <p className="m-0 w-full text-sm" role="status">
           {status}
         </p>
         {reader.error ? (
-          <p role="alert" className="m-0 font-bold text-danger sm:col-span-2">
+          <p role="alert" className="m-0 w-full font-bold text-danger">
             {reader.error}
           </p>
         ) : null}

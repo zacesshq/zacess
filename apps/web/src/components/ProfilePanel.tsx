@@ -74,7 +74,7 @@ export function ProfilePanel({ profile, presets, base, adjusted, onPreset, onCha
           spoken={`${size} points`}
           onChange={(v) => set("font_size_pt", v)}
         />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button size="sm" onClick={() => zoom(-2)} disabled={size <= MIN_SIZE}>
             <Minus aria-hidden="true" />
             Smaller

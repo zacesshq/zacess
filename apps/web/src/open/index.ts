@@ -20,17 +20,30 @@ export type Kind = "pdf" | "image" | "docx" | "html" | "text";
 
 const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp", "gif", "bmp"];
 
-/** The file types the file button offers. */
+/**
+ * The file types the file button offers. Media types sit beside the extensions because the phone
+ * pickers match on them: iOS offers the photo library and Files only for types it recognises, and
+ * Android greys out a file whose extension it cannot map.
+ */
 export const ACCEPT = [
   ".pdf",
+  "application/pdf",
   ".docx",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ".html",
   ".htm",
+  "text/html",
   ".txt",
+  "text/plain",
   ".md",
   ".markdown",
+  "text/markdown",
   ...IMAGE_EXTENSIONS.map((e) => `.${e}`),
+  "image/*",
 ].join(",");
+
+/** What the "Take a photo" control accepts: a camera picture, which goes through text recognition. */
+export const CAMERA_ACCEPT = "image/*";
 
 /** The largest file the app opens. Larger ones would hold the page for a long time. */
 export const MAX_BYTES = 200 * 1024 * 1024;

@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border-2 px-4 py-2 text-base font-bold whitespace-nowrap select-none disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-5 [&_svg]:shrink-0",
+  "inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-md border-2 px-4 py-2 text-center text-base font-bold select-none touch-manipulation disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:size-5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -16,7 +16,8 @@ const buttonVariants = cva(
       },
       size: {
         default: "",
-        sm: "min-h-10 px-3 text-sm",
+        // every size keeps the 44 pixel minimum, so a compact button is still easy to tap
+        sm: "px-3 text-sm",
         icon: "size-11 px-0",
       },
     },

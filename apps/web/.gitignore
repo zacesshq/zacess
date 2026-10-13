@@ -4,3 +4,4 @@ public/ocr/
 public/pdfjs/
 # test output and screenshots
 test-results/
+.wrangler/

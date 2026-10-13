@@ -18,7 +18,9 @@ import { load, save } from "@/lib/storage";
 import { useTheme } from "@/lib/theme";
 import { useReadAloud } from "@/lib/useReadAloud";
 import type { Sentence } from "@/lib/speech";
-import { fileStem } from "@/lib/utils";
+import { cn, fileStem } from "@/lib/utils";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ExportPanel } from "@/components/ExportPanel";
 import { OpenPanel } from "@/components/OpenPanel";
 import { ProfilePanel, STANDARD } from "@/components/ProfilePanel";
@@ -27,6 +29,20 @@ import { ReadingView, VIEW_SCOPE, type ReadingViewHandle } from "@/components/Re
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 const LANGUAGE = "en-GB";
+
+/** The project's website. A plain link, so it needs nothing in the Content Security Policy. */
+const SITE = "https://zacess.com";
+
+const footerLinks: [string, string][] = [
+  ["Privacy", `${SITE}/privacy/`],
+  ["Accessibility", `${SITE}/accessibility/`],
+  ["Contact", `${SITE}/contact/`],
+  ["Report a problem", "https://github.com/zacesshq/zacess/issues/new/choose"],
+  ["Source code", "https://github.com/zacesshq/zacess"],
+];
+
+const OPEN_PANEL = "panel-open";
+const SETTINGS_PANEL = "panel-settings";
 
 type Base = PresetId | typeof STANDARD;
 
@@ -45,13 +61,19 @@ function sameSettings(a: ReadingProfile, b: ReadingProfile): boolean {
 function download(name: string, data: BlobPart, type: string) {
   const url = URL.createObjectURL(new Blob([data], { type }));
   const link = document.createElement("a");
-  link.href = url;
-  link.download = name;
-  link.rel = "noopener";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  if ("download" in link) {
+    link.href = url;
+    link.download = name;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } else {
+    // a browser without the download attribute opens the file instead, from where it can be shared or saved
+    window.open(url, "_blank", "noopener");
+  }
+  // kept for a minute, because Safari on iPhone and iPad can read the file after the click returns
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export default function App() {
@@ -62,6 +84,7 @@ export default function App() {
   const [base, setBase] = useState<Base>(() =>
     load<Base>("preset", STANDARD, (v) => (typeof v === "string" && (v === STANDARD || presets.some((p) => p.id === v)) ? (v as Base) : STANDARD)),
   );
+  const [panelOpen, setPanelOpen] = useState(() => load<boolean>("panel", true, (v) => v !== false));
   const [opened, setOpened] = useState<Opened | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -200,6 +223,14 @@ export default function App() {
     }
   };
 
+  // the controls can be hidden only while a document is open, so the way to open one is never hidden
+  const collapsed = Boolean(document_) && !panelOpen;
+  const togglePanel = () => {
+    const next = !panelOpen;
+    setPanelOpen(next);
+    save("panel", next);
+  };
+
   const busy = Boolean(progress && progress.fraction !== 1 && !error);
 
   return (
@@ -207,28 +238,65 @@ export default function App() {
       <a className="skip-link" href={document_ ? "#document" : "#main"}>
         {document_ ? "Skip to the document" : "Skip to the main content"}
       </a>
-      <header className="border-b-2 border-fg">
-        <div className="mx-auto flex max-w-[96rem] flex-wrap items-center justify-between gap-4 px-4 py-4">
-          <div className="grid gap-1">
-            <h1 className="m-0 leading-none">
-              <img src="./brand/zacess-lockup-light.svg" alt="Zacess" width={176} height={51} className="dark-hide" />
-              <img src="./brand/zacess-lockup-dark.svg" alt="Zacess" width={176} height={51} className="dark-show" />
-            </h1>
-            <p className="m-0 font-bold" id="privacy">
-              Files never leave your device.
-            </p>
+      <header className="zc-safe-top border-b-2 border-fg">
+        {/* one row from 320 pixels up: on a phone the lockup is smaller, the link reads "About" and,
+            below 375 pixels, the colour mode button keeps only its icon. Only very large text or
+            zoom wraps the buttons under the lockup */}
+        <div className="zc-gutter mx-auto flex max-w-[96rem] flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2 sm:gap-x-6 sm:py-4">
+          <h1 className="m-0 leading-none">
+            <a href={SITE} aria-label="Zacess home" className="inline-flex min-h-11 items-center rounded-sm">
+              <img src="./brand/zacess-lockup-light.svg" alt="" width={176} height={51} className="dark-hide h-9 w-auto sm:h-[51px]" />
+              <img src="./brand/zacess-lockup-dark.svg" alt="" width={176} height={51} className="dark-show h-9 w-auto sm:h-[51px]" />
+            </a>
+          </h1>
+          <div className="flex flex-wrap items-center gap-x-1 sm:gap-x-4">
+            <a
+              href={SITE}
+              className="inline-flex min-h-11 items-center px-2 font-bold underline decoration-2 underline-offset-4 hover:decoration-4"
+            >
+              {/* one inline run, so the space before "Zacess" survives the flex layout */}
+              <span>
+                About <span className="max-sm:sr-only">Zacess</span>
+              </span>
+            </a>
+            <ThemeSwitcher value={theme} onChange={setTheme} />
           </div>
-          <ThemeSwitcher value={theme} onChange={setTheme} />
         </div>
       </header>
 
-      <main id="main" tabIndex={-1} className="mx-auto max-w-[96rem] px-4 py-6">
-        {/* the order follows the work: open, read, then adjust; on wide screens the document sits
-            beside the controls */}
-        <div className="grid gap-8 lg:grid-cols-[minmax(20rem,26rem)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:items-start">
-          <div className="grid min-w-0 gap-6 lg:col-start-1 lg:row-start-1">
-            <OpenPanel busy={busy} onFile={(f) => void open(f)} onPaste={paste} />
-            <div className="grid gap-2" aria-live="polite">
+      <main id="main" tabIndex={-1} className="zc-gutter mx-auto max-w-[96rem] py-6">
+        {/* the order follows the work: open, read, then adjust; from tablet width the document sits
+            beside the controls. With a document open the controls can be hidden to give it the
+            full width */}
+        {document_ ? (
+          <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Button
+              size="sm"
+              aria-expanded={!collapsed}
+              aria-controls={`${OPEN_PANEL} ${SETTINGS_PANEL}`}
+              onClick={togglePanel}
+            >
+              {collapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
+              {collapsed ? "Show panel" : "Hide panel"}
+            </Button>
+            {collapsed ? (
+              <span className="text-sm text-muted">Opening, reading settings, read aloud and export are hidden.</span>
+            ) : null}
+          </div>
+        ) : null}
+        <div
+          className={cn(
+            collapsed ? "grid gap-4" : "grid gap-8",
+            !collapsed &&
+              "md:grid-cols-[minmax(16rem,19rem)_minmax(0,1fr)] md:grid-rows-[auto_1fr] md:items-start md:gap-6 lg:grid-cols-[minmax(20rem,26rem)_minmax(0,1fr)] lg:gap-8",
+          )}
+        >
+          <div className={cn("grid min-w-0 gap-6", !collapsed && "md:col-start-1 md:row-start-1")}>
+            <div id={OPEN_PANEL} hidden={collapsed}>
+              <OpenPanel busy={busy} onFile={(f) => void open(f)} onPaste={paste} />
+            </div>
+            {/* progress and errors stay outside the panel, so they are seen and announced while it is hidden */}
+            <div className="grid gap-2 empty:-mt-6" aria-live="polite">
               {progress ? (
                 <>
                   <p className="m-0">{progress.message}</p>
@@ -254,10 +322,10 @@ export default function App() {
               </p>
             ) : null}
           </div>
-          <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <div className={cn("min-w-0", !collapsed && "md:col-start-2 md:row-span-2 md:row-start-1")}>
             <ReadingView ref={view} html={html} css={css} profile={profile} title={document_?.title ?? null} summary={summary} />
           </div>
-          <div className="grid min-w-0 gap-8 lg:col-start-1 lg:row-start-2">
+          <div id={SETTINGS_PANEL} hidden={collapsed} className="grid min-w-0 gap-8 md:col-start-1 md:row-start-2">
             <ProfilePanel
               profile={profile}
               presets={presets}
@@ -274,12 +342,31 @@ export default function App() {
       </main>
 
       <footer className="border-t-2 border-fg">
-        <div className="mx-auto grid max-w-[96rem] gap-1 px-4 py-4 text-sm">
-          <p className="m-0">
-            Zacess reads every file in this browser. Nothing is uploaded, there is no account and nothing is tracked.
-            Settings are kept in this browser only.
-          </p>
-          <p className="m-0">Zacess is free software under the GNU Affero General Public License v3.0.</p>
+        <div className="zc-gutter zc-safe-bottom mx-auto flex max-w-[96rem] flex-wrap items-start justify-between gap-x-10 gap-y-4 pt-5 text-sm">
+          <div className="grid max-w-[46rem] gap-1">
+            <p className="m-0">
+              Zacess reads every file in this browser. Nothing is uploaded, there is no account and nothing is tracked.
+              Settings are kept in this browser only.
+            </p>
+            <p className="m-0">
+              Zacess is free software under the{" "}
+              <a className="underline underline-offset-2" href="https://github.com/zacesshq/zacess/blob/main/LICENSE">
+                GNU Affero General Public License v3.0
+              </a>
+              .
+            </p>
+          </div>
+          <nav aria-label="Footer">
+            <ul className="m-0 flex list-none flex-wrap gap-x-5 p-0">
+              {footerLinks.map(([label, href]) => (
+                <li key={href}>
+                  <a className="inline-flex min-h-11 items-center font-bold underline underline-offset-2" href={href}>
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </footer>
     </>

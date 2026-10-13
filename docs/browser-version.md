@@ -27,14 +27,26 @@ the one item that cannot be checked here.
 8. Links in a PDF, a web page, a Word file or a pasted address work as described under
    [Links](#links): real links, never shown by colour alone, listed in a panel, read with a cue and
    never fetched by the app.
-9. The app says that files never leave the device, makes no request to any other origin and keeps
-   no account, cookie or analytics.
+9. The app says once, in its footer, that every file is read in the browser and nothing is
+   uploaded, makes no request to any other origin and keeps no account, cookie or analytics.
 10. axe-core finds no WCAG 2.2 A or AA violations on the main screens, in jsdom and in Chromium,
     and no AAA contrast violation in the reading view. Every control is labelled, focus is always
     visible, there is a skip link and landmarks, colour is never the only signal, motion follows
     the reduced motion setting and the layout works at 320 pixels wide.
 11. Testing with VoiceOver, NVDA, JAWS, TalkBack and Orca and with students who use them is done by
     people with the assistive technology, before the first release.
+
+## Layout
+
+| Part | What it shows |
+| --- | --- |
+| Header | The Zacess lockup, which links to [zacess.com](https://zacess.com) as "Zacess home", an "About Zacess" text link to the same site and the colour mode control, on one row from 320 pixels wide. Below 640 pixels the lockup is smaller and the link reads "About" (still named "About Zacess" for screen readers); below 375 pixels the colour mode button shows only its icon and keeps its spoken name |
+| Colour mode | One button naming the current mode (System, Light or Dark) with its icon and a chevron. It opens a menu of the three modes with their icons. The chosen one carries a tick and is announced as checked. System is the default. The menu is a Radix dropdown with radio items: the arrow keys, Home and End move through it, Enter or Space chooses, Escape closes it and the focus returns to the button. The choice is kept under `zacess.theme` |
+| Panel | Open a document, reading settings, read aloud and export. From 768 pixels wide (an iPad in portrait) it sits beside the document; on phones it comes before and after it |
+| Hide panel | Once a document is open, a "Hide panel" button above the layout hides the whole panel so the document takes the full width. "Show panel" brings it back. The button carries `aria-expanded` and `aria-controls`, keeps the focus when pressed and works the same on phones. The choice is kept under `zacess.panel`. With no document open the panel is always shown. Progress messages and errors stay visible and announced while the panel is hidden. Nothing animates |
+| Footer | The one statement of how files are handled, then the licence |
+
+Links to the website are plain navigation, so the Content Security Policy needs no change for them.
 
 ## Architecture
 
@@ -114,8 +126,8 @@ npx wrangler deploy --autoconfig=false
   works offline afterwards.
 - Online voices are off by default. The setting that turns them on says that the text is sent to
   the company that provides the voice.
-- Settings (the reading profile, the app colours, the voice, speed and link reading) are kept in
-  `localStorage`. Every read and write is guarded so the app still works when storage is blocked.
+- Settings (the reading profile, the app colours, whether the panel is hidden, the voice, speed and
+  link reading) are kept in `localStorage`. Every read and write is guarded so the app still works when storage is blocked.
 
 ### More OCR languages
 
@@ -150,14 +162,70 @@ In the reading view:
   person activates it.
 - Both exports keep the links.
 
+## Phones and tablets
+
+The app is laid out and operated for touch as well as for a mouse and keyboard.
+
+- The page uses `viewport-fit=cover`. The header, main area and footer pad themselves with
+  `env(safe-area-inset-*)`, so nothing sits under the notch, the rounded corners or the home bar.
+  The reading view's minimum height uses `svh`, so it does not jump as the address bar moves.
+- Every control is at least 44 by 44 pixels: buttons of every size, the switches (a 44 pixel box
+  around the drawn track), the slider thumbs (a 44 pixel thumb drawing a smaller ring), the voice
+  list, the footer links and the About link. Links inside the document's own sentences keep their
+  size, as WCAG allows.
+- On a touch screen a slider's track lets the page scroll and only its thumb drags, so swiping
+  through the settings never changes a value by accident. A mouse can still press anywhere on the
+  track and the keyboard is unchanged.
+- The voice list draws its own chevron, because Safari ignores a minimum height on a select it
+  draws itself. Every text field and the select are at least 16 pixels, so Safari does not zoom in
+  on focus.
+- The file button accepts PDFs, Word files, images, web pages, Markdown and text by media type as
+  well as by extension, which the iPhone and Android pickers need. On a touch screen a "Take a
+  photo" button opens the rear camera (`accept="image/*"` with `capture="environment"`) and the
+  picture goes through text recognition like any image. A photo keeps the turn stored in its file
+  and is drawn no larger than 12 million pixels, under the limit Safari puts on a canvas.
+- Read aloud speaks its first sentence inside the tap on Play, which iPhone and iPad require, and
+  does not cancel first when nothing is speaking. The voice list fills on `voiceschanged` and is
+  also looked at again for a few seconds, for WebKit builds that fill it without the event.
+- An export is saved with the `download` attribute. A browser without it opens the file instead,
+  and the file's address is kept for a minute because Safari can read it after the tap returns.
+- The colour mode menu keeps 8 pixels from the screen edge. The full address of a document link
+  shows on focus, so tapping the link in the links list shows it too.
+- A web app manifest, an apple-touch-icon and light and dark theme colours let the app be added to
+  a home screen. There is no service worker.
+- pdf.js, tesseract.js and mammoth still load only on the first file that needs them.
+
+### What was checked
+
+With Playwright device profiles (touch, mobile viewport and device scale) in light and dark, in
+both WebKit (the engine every iPhone and iPad browser uses) and Chromium:
+
+| Size | Profiles |
+| --- | --- |
+| Phones | iPhone SE (320 and 375), iPhone 14 (390), iPhone 15 Pro Max (430), Pixel 7 (412), Galaxy S9+ (320) |
+| Tablets | iPad Mini (768 portrait, 1024 landscape), iPad Air (820 portrait, 1180 landscape), iPad Pro 11 (834), iPad Pro 12.9 (1024 portrait, 1366 landscape) |
+| Zoom | 200% page zoom on a 390 pixel phone (195 pixels of layout) and 200% text on a 390 pixel phone |
+
+At every size: no sideways scroll, no control under 44 pixels, no text field under 16 pixels, the
+header on one row from 320 pixels (very large zoom or text wraps it deliberately under the
+lockup), axe-core with no WCAG 2.2 A or AA violation, the colour mode menu opened and chosen by tap
+without leaving the screen and the panel hidden and shown by tap. On an iPhone and an iPad profile
+in both engines: a photo through the camera input and OCR, a PDF, a Word file, Markdown, a web page
+and pasted text opened, a profile chosen by tap, the links list tapped to the address, read aloud
+started from the tap, both downloads and no request to another origin. In Chromium a touch on a
+slider's track was checked to leave the value and a drag of its thumb to change it.
+
+Only a real device shows the camera, the system share and save sheets, the installed home screen
+app and the real voices.
+
 ## Checks
 
 | Check | Where |
 | --- | --- |
 | The wasm-facing functions | `cargo test -p zacess-wasm` (native) |
-| Opening text, HTML and Word fixtures, profiles, exports, voices, read aloud, links and keyboard use | `apps/web/src/test/*.test.tsx` with Vitest and Testing Library |
-| axe-core, WCAG 2.0, 2.1 and 2.2 A and AA, on the first screen, an open document, the dark theme, an error and the links list | `apps/web/src/test/a11y.test.tsx` and `links.test.tsx` (jsdom has no layout, so contrast is checked in Chromium) |
-| The built app in Chromium at 1280 and 375 pixels, light and dark: opening a text file, a PDF with a link annotation and a scan through OCR, a preset change, an HTML export, axe including AAA contrast in the reading view, no sideways scroll at 96 pt and no request to another origin | `apps/web/scripts/check-browser.mjs` |
+| Opening text, HTML and Word fixtures, profiles, exports, voices, read aloud, links, the colour mode menu, hiding the panel, the single privacy statement and keyboard use | `apps/web/src/test/*.test.tsx` with Vitest and Testing Library |
+| axe-core, WCAG 2.0, 2.1 and 2.2 A and AA, on the first screen, an open document, the dark theme, an error, the colour mode menu, the hidden panel and the links list | `apps/web/src/test/a11y.test.tsx` and `links.test.tsx` (jsdom has no layout, so contrast is checked in Chromium) |
+| The built app in Chromium at 1280 and 375 pixels, light and dark: opening a text file, a PDF with a link annotation and a scan through OCR, a preset change, an HTML export, axe including AAA contrast in the reading view, no sideways scroll at 96 pt and no request to another origin. Then WebKit on iPhone SE, iPhone 14, iPad Mini and iPad Pro 11 landscape profiles in light and dark, then Chromium on a Galaxy S9+: axe, no sideways scroll, every control at least 44 pixels, text fields at least 16 pixels and the camera control | `apps/web/scripts/check-browser.mjs` |
 | The browser build of the core | `cargo clippy -p zacess-wasm --target wasm32-unknown-unknown` |
 
 CI runs all of them in the "Browser version" job.
@@ -169,7 +237,7 @@ Measured on the first build, before compression on the server.
 | Part | Size | Gzipped | Loaded |
 | --- | --- | --- | --- |
 | The core (`zacess_wasm_bg.wasm`, after `wasm-opt -Oz`) | 440 KB | 177 KB | At start |
-| App JavaScript (React, Radix and the app) | 341 KB | 107 KB | At start |
+| App JavaScript (React, Radix and the app) | 409 KB | 130 KB | At start |
 | pdf.js and its worker | 420 KB and 1.2 MB | 125 KB and 366 KB | On the first PDF |
 | mammoth | 301 KB | 92 KB | On the first Word file |
 | tesseract.js and its worker | 17 KB and 109 KB | | On the first OCR |

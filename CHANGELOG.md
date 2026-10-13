@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Fixed
 
+- A braille translator that rejects its tables and exits before reading the text now reports its own error. Before this the write failed with a broken pipe and the run could fail at random.
 - The repository link in `Cargo.toml` now points at this repository.
 
 ### Added

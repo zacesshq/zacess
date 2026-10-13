@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Fixed
+
+- The repository link in `Cargo.toml` now points at this repository.
+
 ### Added
 
 - Read-only copies of `crates/zacess-core`, `crates/zacess-quality` and `apps/app` in the `core`, `quality` and `app` repositories, each with its own README and licence.

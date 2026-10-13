@@ -376,6 +376,8 @@ pub fn document_from_pages(json: &str) -> Result<String> {
     .into_imported();
     imported.document.source.format = format;
     links::attach_links(&mut imported.document, &all_links);
+    // addresses typed into the text link the same way as pasted text; runs a link area covered keep theirs
+    links::link_bare_addresses(&mut imported.document);
     // a page OCR ran on is finished even when it was blank
     imported
         .pages_needing_ocr

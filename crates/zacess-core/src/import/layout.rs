@@ -362,9 +362,71 @@ fn detect_tables(mut lines: Vec<Line>) -> (Vec<Line>, Vec<Block>) {
     (remaining, tables)
 }
 
+/// How far the next line of a paragraph may sit below the last one, in line pitches of the page.
+/// A paragraph break adds space on top of the pitch, so a break clears this with room to spare.
+const PITCH_TOLERANCE: f32 = 1.2;
+
+/// The typical distance between a line and the line printed under it on a page, found from the
+/// nearest same-sized line below each one. `None` when there are too few pairs to call it typical.
+fn line_pitch(lines: &[Line]) -> Option<f32> {
+    let mut gaps: Vec<f32> = Vec::new();
+    for a in lines {
+        let nearest = lines
+            .iter()
+            .filter(|b| {
+                let size = a.size.max(b.size);
+                let overlap = a.x1.min(b.x1) - a.x0.max(b.x0);
+                let gap = b.baseline - a.baseline;
+                (a.size - b.size).abs() <= 0.15 * size
+                    && overlap > 0.2 * size
+                    && gap > 0.5 * size
+                    && gap <= 3.5 * size
+            })
+            .map(|b| b.baseline - a.baseline)
+            .min_by(f32::total_cmp);
+        gaps.extend(nearest);
+    }
+    if gaps.len() < 3 {
+        return None;
+    }
+    gaps.sort_by(f32::total_cmp);
+    Some(gaps[gaps.len() / 2])
+}
+
+/// Whether every run of a line comes from a text layer. Recognised text has uneven line widths
+/// and spacing, so the loose-leading rule is left to text that was typed into the file.
+fn is_native(line: &Line) -> bool {
+    line.runs
+        .iter()
+        .all(|r| r.confidence == Confidence::CERTAIN)
+}
+
+/// Whether a line runs to the right edge its column keeps, which marks it as wrapped on to the
+/// next line rather than the last line of a paragraph or a line of its own.
+fn runs_full(line: &Line, lines: &[Line]) -> bool {
+    let mut edges: Vec<f32> = lines
+        .iter()
+        .filter(|o| {
+            let overlap = line.x1.min(o.x1) - line.x0.max(o.x0);
+            overlap > 0.5 * line.size && (o.size - line.size).abs() <= 0.15 * line.size.max(o.size)
+        })
+        .map(|o| o.x1)
+        .collect();
+    edges.sort_by(f32::total_cmp);
+    // the near-maximum rather than the median, so short single-line items never count as full
+    edges
+        .get((edges.len() * 9 / 10).min(edges.len().saturating_sub(1)))
+        .is_some_and(|edge| line.x1 >= edge - 4.0 * line.size)
+}
+
 fn group_blocks(lines: Vec<Line>) -> Vec<Block> {
+    let pitch = line_pitch(&lines);
+    let marked: Vec<bool> = lines
+        .iter()
+        .map(|l| list_marker(&l.text()).is_some())
+        .collect();
     let mut blocks: Vec<Block> = Vec::new();
-    for line in lines {
+    for (index, line) in lines.iter().cloned().enumerate() {
         let best = blocks
             .iter_mut()
             .filter_map(|block| {
@@ -373,7 +435,20 @@ fn group_blocks(lines: Vec<Line>) -> Vec<Block> {
                 let gap = line.baseline - last.baseline;
                 let overlap = line.x1.min(block.x1()) - line.x0.max(block.x0());
                 let same_size = (last.size - line.size).abs() <= 0.15 * size;
-                let close = gap > 0.0 && gap <= 1.5 * size;
+                // loose leading (1.5 times or double spacing) is judged against the page's own
+                // line pitch and only after a line that wrapped, so single-line paragraphs set
+                // at a similar spacing stay apart
+                let close = gap > 0.0
+                    && (gap <= 1.5 * size
+                        || pitch.is_some_and(|p| {
+                            !marked[index]
+                                && gap <= PITCH_TOLERANCE * p
+                                && gap <= 3.0 * size
+                                && gap >= 0.85 * p
+                                && is_native(last)
+                                && is_native(&line)
+                                && runs_full(last, &lines)
+                        }));
                 (same_size && close && overlap > 0.2 * size).then_some((block, overlap))
             })
             .max_by(|a, b| a.1.total_cmp(&b.1));
@@ -920,5 +995,89 @@ mod tests {
         );
         assert!(layout[0].blocks.is_empty());
         assert_eq!(layout[1].blocks.len(), 1);
+    }
+
+    /// A page of two paragraphs set at the given leading: the second after `extra` more space.
+    fn spaced_page(leading: f32, extra: f32) -> Vec<Fragment> {
+        let paragraphs = [
+            [
+                "Reading aloud works best when a paragraph arrives",
+                "as one piece of text rather than a pile of lines",
+                "so every sentence is spoken from its first word",
+                "to its last without stopping part way through.",
+            ],
+            [
+                "A second paragraph begins after a clear break and",
+                "carries on for several lines at the same size so",
+                "the importer can tell it from the one above it",
+                "and keep the two apart on the page.",
+            ],
+        ];
+        let mut out = Vec::new();
+        let mut y = 100.0;
+        for (p, lines) in paragraphs.iter().enumerate() {
+            if p > 0 {
+                y += extra;
+            }
+            for (i, text) in lines.iter().enumerate() {
+                if i > 0 {
+                    y += leading;
+                }
+                // every line but the last is the same width so it runs to the right edge
+                let mut f = frag(1, 72.0, y, 12.5, false, text);
+                if i + 1 < lines.len() {
+                    f.width = 400.0;
+                } else {
+                    f.width = 250.0;
+                }
+                out.push(f);
+            }
+            y += leading;
+        }
+        out
+    }
+
+    fn paragraph_count(frags: &[Fragment]) -> Vec<usize> {
+        let page = PageSize {
+            number: 1,
+            width: 612.0,
+            height: 792.0,
+        };
+        let layout = analyse(&[page], frags);
+        layout[0]
+            .blocks
+            .iter()
+            .map(|(_, k)| match k {
+                BlockKind::Paragraph { runs, .. } => runs.len(),
+                _ => 0,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn the_same_paragraphs_come_out_at_single_one_and_a_half_and_double_spacing() {
+        for leading in [14.4, 19.0, 25.0] {
+            // a clear extra gap of about half a line separates the two paragraphs
+            let frags = spaced_page(leading, leading * 0.6);
+            assert_eq!(
+                paragraph_count(&frags),
+                [4, 4],
+                "leading {leading} must give two four-line paragraphs"
+            );
+        }
+    }
+
+    #[test]
+    fn wide_spacing_without_a_break_is_one_paragraph() {
+        let mut frags = spaced_page(19.0, 0.0);
+        for f in &mut frags {
+            f.width = 400.0;
+        }
+        // with no extra gap and every line running full, the text is one run at 1.5 times spacing
+        let counts = paragraph_count(&frags);
+        assert_eq!(counts, [8]);
+        // a heading-sized change still splits
+        frags[4].size = 18.0;
+        assert!(paragraph_count(&frags).len() > 1);
     }
 }

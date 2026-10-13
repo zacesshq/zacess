@@ -1,14 +1,11 @@
 import { useId } from "react";
-import { Pause, Play, SkipBack, SkipForward, Square } from "lucide-react";
 import type { ReadAloud } from "@/lib/useReadAloud";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Switch } from "@/components/ui/switch";
 import { Section } from "./Section";
-import { SliderField } from "./SliderField";
 
-export function ReadAloudPanel({ reader, hasDocument }: { reader: ReadAloud; hasDocument: boolean }) {
+export function ReadAloudPanel({ reader }: { reader: ReadAloud }) {
   const voiceId = useId();
   const onlineId = useId();
   const onlineHint = useId();
@@ -22,13 +19,6 @@ export function ReadAloudPanel({ reader, hasDocument }: { reader: ReadAloud; has
       </Section>
     );
   }
-
-  const status =
-    reader.state === "playing"
-      ? `Reading sentence ${reader.current} of ${reader.total}`
-      : reader.state === "paused"
-        ? `Paused at sentence ${reader.current} of ${reader.total}`
-        : "Stopped";
 
   return (
     <Section title="Read aloud">
@@ -85,44 +75,9 @@ export function ReadAloudPanel({ reader, hasDocument }: { reader: ReadAloud; has
         </p>
       </div>
 
-      <SliderField
-        label="Speed"
-        value={reader.rate}
-        min={0.5}
-        max={2}
-        step={0.1}
-        shown={`${reader.rate.toFixed(1)} times`}
-        onChange={(v) => reader.setRate(Number(v.toFixed(1)))}
-      />
-
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Read aloud controls">
-        {reader.state === "playing" ? (
-          <Button variant="primary" onClick={reader.pause}>
-            <Pause aria-hidden="true" />
-            Pause
-          </Button>
-        ) : (
-          <Button variant="primary" onClick={reader.play} disabled={!hasDocument}>
-            <Play aria-hidden="true" />
-            {reader.state === "paused" ? "Resume" : "Play"}
-          </Button>
-        )}
-        <Button onClick={reader.stop} disabled={reader.state === "idle"}>
-          <Square aria-hidden="true" />
-          Stop
-        </Button>
-        <Button size="icon" onClick={() => reader.skip(-1)} disabled={reader.state === "idle"} aria-label="Previous sentence">
-          <SkipBack aria-hidden="true" />
-        </Button>
-        <Button size="icon" onClick={() => reader.skip(1)} disabled={reader.state === "idle"} aria-label="Next sentence">
-          <SkipForward aria-hidden="true" />
-        </Button>
-      </div>
-      <p className="text-sm" role="status">
-        {status}
-      </p>
       <p className="text-sm text-muted">
-        Reading starts from the paragraph you last clicked or selected. With none, it starts at the top.
+        Play, Pause, Stop, the sentence buttons and Speed sit in a bar above the document and stay in view while you
+        read. Reading starts from the paragraph you last clicked or selected. With none, it starts at the top.
       </p>
       {reader.error ? (
         <p role="alert" className="font-bold text-danger">

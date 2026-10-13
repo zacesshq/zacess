@@ -53,6 +53,15 @@ through the same steps.
 Every run keeps its page and region, every block keeps the union of its runs' regions and text from
 a text layer carries a confidence of 1.
 
+### Paragraphs and line spacing
+
+Lines join into a paragraph when the next line sits within 1.5 times the font size below the last
+one, or, on a page with a typical line pitch of its own (the median distance to the next line), within
+1.2 times that pitch after a line that ran to the column's right edge. A PDF set at single, 1.5 times
+or double spacing therefore gives the same paragraphs, while extra space above a line, a font size
+change, a heading or a list marker still starts a new one. A short last line before a gap is read as
+the end of a paragraph.
+
 ## Known limits
 
 - A table whose cells wrap onto several lines or whose columns do not line up is read as

@@ -353,3 +353,71 @@ fn links_survive_both_exports() {
     let needle = b"<a href=\"https://example.org/slides\">";
     assert!(epub.windows(needle.len()).any(|w| w == needle));
 }
+
+fn pdf_links(items: serde_json::Value, links: serde_json::Value) -> Vec<(String, String)> {
+    let input = serde_json::json!({
+        "file_name": "links.pdf",
+        "format": "pdf",
+        "pages": [{ "number": 1, "width": 612.0, "height": 792.0, "items": items, "links": links }]
+    });
+    let out = json(&document_from_pages(&input.to_string()).unwrap());
+    let doc = Document::from_json(&out["document"].to_string()).unwrap();
+    links_in(&doc)
+}
+
+#[test]
+fn a_link_area_touching_a_neighbouring_word_leaves_that_word_out() {
+    // "Zacess repository" is the linked text. The box also grazes
+    // the end of "the" and the start of "for"
+    let found = pdf_links(
+        serde_json::json!([
+            { "x": 72.0, "baseline": 100.0, "width": 250.0, "size": 12.0, "text": "See the Zacess repository for more" }
+        ]),
+        serde_json::json!([
+            { "url": "https://example.org/repo", "x": 72.0 + 6.0 * 7.0 + 5.0, "y": 88.0, "width": 17.0 * 7.14 + 4.0, "height": 15.0 }
+        ]),
+    );
+    assert_eq!(
+        found,
+        vec![(
+            "Zacess repository".to_string(),
+            "https://example.org/repo".to_string()
+        )]
+    );
+}
+
+#[test]
+fn bare_addresses_in_pdf_text_link_like_pasted_text() {
+    let found = pdf_links(
+        serde_json::json!([
+            { "x": 72.0, "baseline": 100.0, "width": 400.0, "size": 12.0, "text": "Write via https://zacess.com/contact/ or contact@zacess.com." },
+            { "x": 72.0, "baseline": 130.0, "width": 200.0, "size": 12.0, "text": "Not a link: javascript:alert(1)" }
+        ]),
+        serde_json::json!([]),
+    );
+    assert_eq!(
+        found,
+        vec![
+            (
+                "https://zacess.com/contact/".to_string(),
+                "https://zacess.com/contact/".to_string()
+            ),
+            (
+                "contact@zacess.com".to_string(),
+                "mailto:contact@zacess.com".to_string()
+            ),
+        ]
+    );
+}
+
+#[test]
+fn email_and_mailto_addresses_are_found_without_trailing_punctuation() {
+    let text = "Mail a@b.org then mailto:c@d.io. Not x@y or @z.com or a@b.c1.";
+    let spans: Vec<&str> = links::find_addresses(text)
+        .into_iter()
+        .map(|(s, e)| &text[s..e])
+        .collect();
+    assert_eq!(spans, ["a@b.org", "mailto:c@d.io"]);
+    assert_eq!(links::address_link("a@b.org"), "mailto:a@b.org");
+    assert_eq!(links::address_link("mailto:c@d.io"), "mailto:c@d.io");
+}

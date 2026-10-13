@@ -351,6 +351,7 @@ pub fn render_runs(runs: &[Run]) -> String {
     for (run, flagged) in runs.iter().zip(flags) {
         let needs_space = !out.is_empty()
             && !out.ends_with(char::is_whitespace)
+            && !out.ends_with(crate::model::opens_text)
             && !out.ends_with("</span>")
             && !run.text.starts_with(char::is_whitespace)
             && !run.text.starts_with(crate::model::closes_text);

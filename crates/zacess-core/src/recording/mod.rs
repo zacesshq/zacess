@@ -397,5 +397,5 @@ pub(crate) fn quantise(sample: f32) -> i16 {
     (sample.clamp(-1.0, 1.0) * 32767.0).round() as i16
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "library"))]
 mod tests;

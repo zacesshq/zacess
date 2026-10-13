@@ -11,11 +11,13 @@ mod base64;
 pub mod html;
 pub mod text;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "library"))]
 mod tests;
 
 use crate::import::{self, ImportError, Tools};
-use crate::library::{ItemId, Library, LibraryError, content_hash};
+#[cfg(feature = "library")]
+use crate::library::Library;
+use crate::library::{ItemId, LibraryError, content_hash};
 use crate::model::{Document, Source, SourceFormat};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -353,6 +355,7 @@ pub fn convert(request: &CaptureRequest, tools: &Tools<'_>) -> Result<ClipEntry,
 
 /// Converts a request and keeps it in the library's inbox, unless the same content was captured
 /// within [`DUPLICATE_WINDOW_SECS`].
+#[cfg(feature = "library")]
 pub fn capture_into(
     library: &mut Library,
     request: &CaptureRequest,

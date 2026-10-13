@@ -1,0 +1,72 @@
+# publishes each component folder to its own read-only repository.
+# git subtree split and the author rewrite are both deterministic, so every
+# publish is a fast-forward.
+# the copies credit the automation account, since the monorepo is where each
+# change is reviewed and attributed; messages and dates stay as they are.
+# the repository check keeps forks from trying to publish to the copies.
+
+name: Publish components
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-components
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish ${{ matrix.repo }}
+    if: github.repository == 'zacesshq/zacess'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - folder: crates/zacess-core
+            repo: core
+          - folder: crates/zacess-quality
+            repo: quality
+          - folder: apps/app
+            repo: app
+    steps:
+      - name: Check for the publishing token
+        id: token
+        env:
+          SPLIT_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        run: |
+          if [ -n "$SPLIT_TOKEN" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "SPLIT_TOKEN is not set, nothing was published" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.token.outputs.present == 'true'
+        with:
+          # the latest main rather than the pushed commit, so a late push event never publishes stale history.
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Split and push
+        if: steps.token.outputs.present == 'true'
+        env:
+          SPLIT_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+          FOLDER: ${{ matrix.folder }}
+          REPO: ${{ matrix.repo }}
+          FILTER_BRANCH_SQUELCH_WARNING: "1"
+        run: |
+          git subtree split --prefix="$FOLDER" --branch "publish-$REPO"
+          git filter-branch --env-filter '
+            if [ "$GIT_AUTHOR_EMAIL" = "code@isaacadjei.me" ]; then
+              export GIT_AUTHOR_NAME="Zac Bot" GIT_AUTHOR_EMAIL="automation@isaacadjei.me"
+            fi
+            if [ "$GIT_COMMITTER_EMAIL" = "code@isaacadjei.me" ]; then
+              export GIT_COMMITTER_NAME="Zac Bot" GIT_COMMITTER_EMAIL="automation@isaacadjei.me"
+            fi
+          ' "publish-$REPO"
+          git push "https://x-access-token:${SPLIT_TOKEN}@github.com/zacesshq/${REPO}.git" "publish-$REPO:main"

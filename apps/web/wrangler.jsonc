@@ -1,0 +1,15 @@
+{
+  // static site only: Cloudflare serves dist/ with the _headers rules, no server code runs
+  "name": "zacess-app",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // the app is one page, so every unknown path loads it rather than a 404
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "app.zacess.com", "custom_domain": true }
+  ],
+  "workers_dev": false,
+  "preview_urls": false
+}

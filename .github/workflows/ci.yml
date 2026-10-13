@@ -91,3 +91,36 @@ jobs:
           for f in out/*.epub out-low-vision/*.epub; do
             java -jar epubcheck-5.2.1/epubcheck.jar --quiet --failonwarnings "$f"
           done
+
+  web:
+    name: Browser version
+    runs-on: ubuntu-latest
+    # OCR in the browser check takes about a minute on its own
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Install wasm-bindgen, matching the version the crate pins
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@0.2.129
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Lint the browser build of the core
+        run: cargo clippy -p zacess-wasm --target wasm32-unknown-unknown -- -D warnings
+      - run: npm ci
+      - name: Build the core and the app
+        run: npm run build -w apps/web
+      - name: Test the app, with axe on the main screens
+        run: npm test -w apps/web
+      - name: Use the built app in Chromium and check it with axe
+        run: |
+          npx playwright install --with-deps chromium
+          node apps/web/scripts/check-browser.mjs

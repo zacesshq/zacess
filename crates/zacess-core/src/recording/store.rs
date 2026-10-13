@@ -1,11 +1,14 @@
 //! The store: a folder with one subfolder for each recording.
 
+#[cfg(feature = "library")]
+use super::RecordingEntry;
 use super::journal::{Entry, encode};
 use super::recorder::Recorder;
 use super::{
     DfSpace, Finished, FreeSpace, MANIFEST_VERSION, Manifest, RealDisk, RecordingConfig,
-    RecordingEntry, RecordingError, Result, Storage, finish, sync_dir,
+    RecordingError, Result, Storage, finish, sync_dir,
 };
+#[cfg(feature = "library")]
 use crate::library::{ItemId, ItemKind, Library};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -48,7 +51,7 @@ impl RecordingStore {
         self
     }
 
-    #[cfg(test)]
+    #[cfg(all(test, feature = "library"))]
     pub(crate) fn with_storage(mut self, storage: impl Storage + 'static) -> Self {
         self.storage = Arc::new(storage);
         self
@@ -199,6 +202,7 @@ impl RecordingStore {
 
     /// Stores a finished recording in the library and says which item it is. Storing the same
     /// recording again updates the item and does not make a second.
+    #[cfg(feature = "library")]
     pub fn store_in_library(&self, library: &mut Library, id: &str) -> Result<ItemId> {
         let manifest = self.manifest(id)?;
         let entry = RecordingEntry {

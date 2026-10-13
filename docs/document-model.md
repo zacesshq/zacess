@@ -120,7 +120,8 @@ A run is a piece of inline text.
 
 Runs carry their own spacing. When two runs would join two words together, views add a single space
 between them. No space is added before a run that starts with closing punctuation (`.`, `,`, `;`,
-`:`, `!`, `?`, `)`, `]` or `}`), such as the full stop after a link.
+`:`, `!`, `?`, `)`, `]` or `}`), such as the full stop after a link. No space is added after an
+opening bracket (`(`, `[` or `{`) either, such as the one before a link written in brackets.
 
 ## Annotation
 

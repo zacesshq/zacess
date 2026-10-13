@@ -4,5 +4,9 @@
   "license": "AGPL-3.0-only",
   "workspaces": [
     "apps/*"
-  ]
+  ],
+  "scripts": {
+    "build": "npm run build -w apps/web",
+    "test": "npm test -w apps/web"
+  }
 }

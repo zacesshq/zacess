@@ -594,6 +594,7 @@ pub fn join_runs(runs: &[Run]) -> String {
         let needs_space = !scripted
             && !text.is_empty()
             && !text.ends_with(char::is_whitespace)
+            && !text.ends_with(opens_text)
             && !run.text.starts_with(char::is_whitespace)
             && !run.text.starts_with(closes_text);
         if needs_space {
@@ -609,6 +610,12 @@ pub fn join_runs(runs: &[Run]) -> String {
 /// put in front of it.
 pub(crate) fn closes_text(c: char) -> bool {
     matches!(c, '.' | ',' | ';' | ':' | '!' | '?' | ')' | ']' | '}')
+}
+
+/// An opening bracket, such as the one before a link written in brackets, so no space is put
+/// after it.
+pub(crate) fn opens_text(c: char) -> bool {
+    matches!(c, '(' | '[' | '{')
 }
 
 impl Document {

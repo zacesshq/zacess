@@ -1,0 +1,22 @@
+# Enforce LF line endings so Windows and Unix contributors never fight over CRLF.
+* text=auto eol=lf
+
+# Binary files, never converted
+*.png          binary
+*.jpg          binary
+*.jpeg         binary
+*.gif          binary
+*.ico          binary
+*.pdf          binary
+*.docx         binary
+*.wav          binary
+*.wasm         binary
+*.woff         binary
+*.woff2        binary
+*.traineddata  binary
+*.gz           binary
+*.zip          binary
+
+# lockfiles are written by tools, so their diffs are collapsed in reviews
+Cargo.lock         linguist-generated
+package-lock.json  linguist-generated

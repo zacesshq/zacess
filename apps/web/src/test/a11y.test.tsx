@@ -47,7 +47,7 @@ describe("axe-core", () => {
   it("states the privacy promise once, in the footer", () => {
     render(<App />);
     const text = document.body.textContent ?? "";
-    expect(screen.getByRole("contentinfo")).toHaveTextContent("Zacess reads every file in this browser. Nothing is uploaded");
+    expect(screen.getByRole("contentinfo")).toHaveTextContent("Your files and settings stay in this browser: nothing is uploaded");
     for (const repeat of [/never leave/i, /nothing is uploaded/i, /on this device/i, /keep everything here/i]) {
       expect(text.match(new RegExp(repeat.source, "gi"))?.length ?? 0).toBeLessThanOrEqual(1);
     }

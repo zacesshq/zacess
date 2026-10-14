@@ -36,6 +36,7 @@ const LANGUAGE = "en-GB";
 const SITE = "https://zacess.com";
 
 const footerLinks: [string, string][] = [
+  ["Code themes", `${SITE}/themes/`],
   ["Privacy", `${SITE}/privacy/`],
   ["Accessibility", `${SITE}/accessibility/`],
   ["Contact", `${SITE}/contact/`],
@@ -365,8 +366,7 @@ export default function App() {
         <div className="zc-gutter zc-safe-bottom mx-auto flex max-w-[96rem] flex-wrap items-start justify-between gap-x-10 gap-y-4 pt-5 text-sm">
           <div className="grid max-w-[46rem] gap-1">
             <p className="m-0">
-              Zacess reads every file in this browser. Nothing is uploaded, there is no account and nothing is tracked.
-              Settings are kept in this browser only.
+              Your files and settings stay in this browser: nothing is uploaded and nothing is tracked.
             </p>
             <p className="m-0">
               Zacess is free software under the{" "}

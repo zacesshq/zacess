@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Fixed
 
+- The README says the browser version is live at app.zacess.com and links to it.
 - A PDF set at 1.5 times or double line spacing now keeps its paragraphs together instead of giving every printed line its own paragraph, so read aloud no longer speaks fragments.
 - The read aloud controls in the browser version now sit in a bar above the document that stays in view. The page now only scrolls when the sentence being read leaves the viewport instead of jumping back to the document.
 - A PDF link area no longer pulls in neighbouring words it only touches. Bare web and email addresses in PDF text are linked like pasted text.

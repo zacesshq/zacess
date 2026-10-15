@@ -7,8 +7,9 @@ pages into structured, high-contrast notes in each reader's own reading profile.
 and keeps them as study material on every device, offline first.
 
 > [!NOTE]
-> Zacess is in early development and nothing is ready to use yet. What it does, the roadmap and
-> how it works are on [zacess.com](https://zacess.com). Each part of the core is described in
+> Zacess is in early development. The browser version is live at [app.zacess.com](https://app.zacess.com)
+> and runs entirely on the device; the apps for each platform are still being built. What it does, the
+> roadmap and how it works are on [zacess.com](https://zacess.com). Each part of the core is described in
 > [docs](docs).
 
 ## What we are building first (v0)
@@ -33,10 +34,10 @@ flowchart LR
 
 ## Browser version
 
-The first usable slice runs in a web browser, entirely on the device: open a PDF, an image, a Word
-file, a web page or pasted text, read it in a reading profile, listen to it and export accessible
-HTML or EPUB. How it is built, what it keeps private and how it is checked are in
-[Browser version](docs/browser-version.md).
+The first usable slice runs in a web browser at [app.zacess.com](https://app.zacess.com), entirely on the
+device: open a PDF, an image, a Word file, a web page or pasted text, read it in a reading profile,
+listen to it and export accessible HTML or EPUB. How it is built, what it keeps private and how it is
+checked are in [Browser version](docs/browser-version.md).
 
 ## Planned layout
 

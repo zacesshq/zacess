@@ -45,7 +45,7 @@ An example is in [`examples/profile.json`](examples/profile.json). A unit test p
 | `paragraph_spacing` | number | Space after each paragraph in multiples of the font size, 0 to 5 |
 | `character_spacing` | number | Extra space between letters in multiples of the font size, 0 to 0.5 |
 | `column_width` | integer | The longest line in average character widths, 20 to 150 |
-| `contrast` | string | `dark_on_light`, `light_on_dark`, `yellow_on_black` or `black_on_cream` |
+| `contrast` | string | `dark_on_light`, `light_on_dark`, `yellow_on_black`, `black_on_cream`, `high_contrast_dark` or `high_contrast_light` |
 | `cursor_size` | string | `standard`, `large` (twice the system size) or `extra_large` (three times) |
 | `reading_ruler.enabled` | boolean | Whether a band follows the line being read |
 | `reading_ruler.position` | number | Where the band sits, from 0 (top of the view) to 1 (bottom) |
@@ -62,3 +62,30 @@ An example is in [`examples/profile.json`](examples/profile.json). A unit test p
 | `light_on_dark` | `#f5f5f5` | `#121212` | 17.2:1 |
 | `yellow_on_black` | `#ffeb3b` | `#000000` | 17.2:1 |
 | `black_on_cream` | `#000000` | `#fdf6e3` | 19.5:1 |
+| `high_contrast_dark` | `#ffffff` | `#000000` | 21:1 |
+| `high_contrast_light` | `#000000` | `#ffffff` | 21:1 |
+
+The two high contrast themes match the High Contrast Dark and High Contrast Light
+[code themes](https://zacess.com/themes/). They take the code themes' link and focus colours, use
+the selection colour for the reading ruler and use the other theme's warning colour behind
+low-confidence text. Adding them changed none of the original four ids, so a profile saved before
+them loads unchanged. A unit test reads every id back.
+
+### Every colour in each theme
+
+Contrast is measured with the WCAG 2.2 relative luminance formula (`contrast_ratio` in
+`profile.rs`), against the theme's background unless the column says otherwise.
+
+| Theme | Link | Low-confidence background (text on it) | Focus ring | Reading ruler (text on it) |
+| --- | --- | --- | --- | --- |
+| `dark_on_light` | `#0b3d91`, 10.0:1 | `#ffe58a`, 15.1:1 | `#0b3d91`, 10.0:1 | `#dbe7ff`, 15.2:1 |
+| `light_on_dark` | `#9cc4ff`, 10.5:1 | `#5c4300`, 8.5:1 | `#9cc4ff`, 10.5:1 | `#24324a`, 11.8:1 |
+| `yellow_on_black` | `#8fd3ff`, 12.9:1 | `#4a2a00`, 10.6:1 | `#ffffff`, 21:1 | `#2a2a2a`, 11.8:1 |
+| `black_on_cream` | `#003a8c`, 9.8:1 | `#ffd27a`, 14.8:1 | `#003a8c`, 9.8:1 | `#efe3c0`, 16.4:1 |
+| `high_contrast_dark` | `#8fd0ff`, 12.6:1 | `#5a3a00`, 10.3:1 | `#f5c400`, 12.8:1 | `#0a2552`, 15.0:1 |
+| `high_contrast_light` | `#003d99`, 9.9:1 | `#ffd28a`, 14.8:1 | `#003d99`, 9.9:1 | `#fff1a0`, 18.3:1 |
+
+Low-confidence text also carries a dotted underline and the focus ring is an outline, so neither
+rests on colour alone. In the two high contrast themes the low-confidence background, the focus
+ring and the ruler are three different colours. Links keep at least 7:1 on the ruler. A unit
+test checks both.

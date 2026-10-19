@@ -1,7 +1,13 @@
 // The JSON forms the core reads and writes. Only the fields the app looks at are typed; the rest
 // pass through untouched.
 
-export type ContrastTheme = "dark_on_light" | "light_on_dark" | "yellow_on_black" | "black_on_cream";
+export type ContrastTheme =
+  | "dark_on_light"
+  | "light_on_dark"
+  | "yellow_on_black"
+  | "black_on_cream"
+  | "high_contrast_dark"
+  | "high_contrast_light";
 export type PresetId = "low_vision" | "dyslexia_friendly" | "reduced_visual_clutter" | "screen_reader";
 
 export interface ReadingProfile {

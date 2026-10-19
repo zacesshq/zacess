@@ -54,6 +54,10 @@ pub enum ContrastTheme {
     LightOnDark,
     YellowOnBlack,
     BlackOnCream,
+    /// White text on pure black, the reading view of the High Contrast Dark code theme.
+    HighContrastDark,
+    /// Black text on pure white, the reading view of the High Contrast Light code theme.
+    HighContrastLight,
 }
 
 /// The colours a theme resolves to, as `#rrggbb`.
@@ -69,6 +73,26 @@ pub struct Palette {
 }
 
 impl ContrastTheme {
+    /// Every theme, in the order the reading settings offer them.
+    pub const ALL: [ContrastTheme; 6] = [
+        ContrastTheme::DarkOnLight,
+        ContrastTheme::LightOnDark,
+        ContrastTheme::YellowOnBlack,
+        ContrastTheme::BlackOnCream,
+        ContrastTheme::HighContrastDark,
+        ContrastTheme::HighContrastLight,
+    ];
+
+    /// Whether the theme is dark text on a light background.
+    pub fn is_light(self) -> bool {
+        matches!(
+            self,
+            ContrastTheme::DarkOnLight
+                | ContrastTheme::BlackOnCream
+                | ContrastTheme::HighContrastLight
+        )
+    }
+
     pub fn palette(self) -> Palette {
         match self {
             ContrastTheme::DarkOnLight => Palette {
@@ -102,6 +126,24 @@ impl ContrastTheme {
                 uncertain: "#ffd27a",
                 focus: "#003a8c",
                 ruler: "#efe3c0",
+            },
+            // the uncertain background is the other high contrast theme's warning colour and the
+            // ruler is the selection colour, so both come from the code themes' own palette
+            ContrastTheme::HighContrastDark => Palette {
+                text: "#ffffff",
+                background: "#000000",
+                link: "#8fd0ff",
+                uncertain: "#5a3a00",
+                focus: "#f5c400",
+                ruler: "#0a2552",
+            },
+            ContrastTheme::HighContrastLight => Palette {
+                text: "#000000",
+                background: "#ffffff",
+                link: "#003d99",
+                uncertain: "#ffd28a",
+                focus: "#003d99",
+                ruler: "#fff1a0",
             },
         }
     }
@@ -441,10 +483,7 @@ impl ProfiledDocument<'_> {
 /// The CSS for a profile. Class names are shared with the HTML export.
 pub fn profile_css(p: &ReadingProfile) -> String {
     let palette = p.contrast.palette();
-    let light = matches!(
-        p.contrast,
-        ContrastTheme::DarkOnLight | ContrastTheme::BlackOnCream
-    );
+    let light = p.contrast.is_light();
     let scheme = if light { "light" } else { "dark" };
     // multiply darkens only the background on a light theme and screen lightens only the
     // background on a dark one, so the ruler never lowers the text contrast
@@ -681,12 +720,7 @@ mod tests {
 
     #[test]
     fn every_theme_meets_aaa_contrast() {
-        for theme in [
-            ContrastTheme::DarkOnLight,
-            ContrastTheme::LightOnDark,
-            ContrastTheme::YellowOnBlack,
-            ContrastTheme::BlackOnCream,
-        ] {
+        for theme in ContrastTheme::ALL {
             let p = theme.palette();
             assert!(
                 contrast_ratio(p.text, p.background) >= 7.0,
@@ -706,6 +740,63 @@ mod tests {
             );
         }
         assert!((contrast_ratio("#000000", "#ffffff") - 21.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn high_contrast_themes_reach_the_maximum_and_keep_their_states_apart() {
+        for theme in [
+            ContrastTheme::HighContrastDark,
+            ContrastTheme::HighContrastLight,
+        ] {
+            let p = theme.palette();
+            assert!(
+                (contrast_ratio(p.text, p.background) - 21.0).abs() < 1e-9,
+                "{theme:?} text"
+            );
+            assert!(
+                contrast_ratio(p.link, p.ruler) >= 7.0,
+                "{theme:?} link on the ruler"
+            );
+            assert!(
+                contrast_ratio(p.text, p.ruler) >= 7.0,
+                "{theme:?} text on the ruler"
+            );
+            let states = [p.uncertain, p.focus, p.ruler];
+            for (i, a) in states.iter().enumerate() {
+                for b in &states[i + 1..] {
+                    assert_ne!(a, b, "{theme:?} states share a colour");
+                }
+            }
+        }
+        assert!(ContrastTheme::HighContrastLight.is_light());
+        assert!(!ContrastTheme::HighContrastDark.is_light());
+    }
+
+    #[test]
+    fn every_theme_id_reads_back_including_the_original_four() {
+        // profiles saved before the high contrast themes existed must still load unchanged
+        let ids = [
+            ("dark_on_light", ContrastTheme::DarkOnLight),
+            ("light_on_dark", ContrastTheme::LightOnDark),
+            ("yellow_on_black", ContrastTheme::YellowOnBlack),
+            ("black_on_cream", ContrastTheme::BlackOnCream),
+            ("high_contrast_dark", ContrastTheme::HighContrastDark),
+            ("high_contrast_light", ContrastTheme::HighContrastLight),
+        ];
+        assert_eq!(ids.len(), ContrastTheme::ALL.len());
+        for (id, theme) in ids {
+            let parsed: ContrastTheme = serde_json::from_value(id.into()).unwrap();
+            assert_eq!(parsed, theme);
+            assert_eq!(serde_json::to_value(theme).unwrap(), id);
+            let mut value = serde_json::to_value(ReadingProfile::default()).unwrap();
+            value["contrast"] = id.into();
+            let profile = ReadingProfile::from_json(&value.to_string()).unwrap();
+            assert_eq!(profile.contrast, theme);
+            let css = profile_css(&profile);
+            assert!(css.contains(theme.palette().background), "{id}");
+            let scheme = if theme.is_light() { "light" } else { "dark" };
+            assert!(css.contains(&format!("color-scheme: {scheme}")), "{id}");
+        }
     }
 
     #[test]

@@ -6,6 +6,7 @@
 //!
 //! The input is imported. A document JSON file is read directly. The preset is one of
 //! `low-vision`, `dyslexia`, `clutter` and `screen-reader`; the standard profile is used otherwise.
+//! `high-contrast-dark` and `high-contrast-light` give the standard profile in that theme.
 
 use std::path::Path;
 use zacess_core::export::{
@@ -13,12 +14,14 @@ use zacess_core::export::{
 };
 use zacess_core::import::{Tools, import_file_with};
 use zacess_core::model::Document;
-use zacess_core::profile::{Preset, ReadingProfile};
+use zacess_core::profile::{ContrastTheme, Preset, ReadingProfile};
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let (Some(input), Some(out_dir)) = (args.first(), args.get(1)) else {
-        eprintln!("usage: export <file> <out-dir> [low-vision|dyslexia|clutter|screen-reader]");
+        eprintln!(
+            "usage: export <file> <out-dir> [low-vision|dyslexia|clutter|screen-reader|high-contrast-dark|high-contrast-light]"
+        );
         std::process::exit(2);
     };
     let input = Path::new(input);
@@ -28,6 +31,14 @@ fn main() {
         "dyslexia" => ReadingProfile::preset(Preset::DyslexiaFriendly),
         "clutter" => ReadingProfile::preset(Preset::ReducedVisualClutter),
         "screen-reader" => ReadingProfile::preset(Preset::ScreenReader),
+        "high-contrast-dark" => ReadingProfile {
+            contrast: ContrastTheme::HighContrastDark,
+            ..ReadingProfile::default()
+        },
+        "high-contrast-light" => ReadingProfile {
+            contrast: ContrastTheme::HighContrastLight,
+            ..ReadingProfile::default()
+        },
         other => {
             eprintln!("unknown preset {other}");
             std::process::exit(2);

@@ -14,6 +14,8 @@ export const THEMES: { id: ContrastTheme; name: string; text: string; background
   { id: "light_on_dark", name: "Light text on near black", text: "#f5f5f5", background: "#121212" },
   { id: "yellow_on_black", name: "Yellow text on black", text: "#ffeb3b", background: "#000000" },
   { id: "black_on_cream", name: "Black text on cream", text: "#000000", background: "#fdf6e3" },
+  { id: "high_contrast_dark", name: "High Contrast Dark, white text on black", text: "#ffffff", background: "#000000" },
+  { id: "high_contrast_light", name: "High Contrast Light, black text on white", text: "#000000", background: "#ffffff" },
 ];
 
 export const STANDARD = "standard";

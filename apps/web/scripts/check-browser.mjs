@@ -1,5 +1,6 @@
 // Opens the built app in headless Chromium and uses it as a person would: opens a text file, a PDF
-// with a text layer and a scanned page through OCR, changes the reading profile and exports HTML.
+// with a text layer and a scanned page through OCR, changes the reading profile and exports HTML,
+// then reads in both high contrast themes.
 // Every screen is checked with axe-core (WCAG 2.2 A and AA, plus AAA contrast in the reading
 // view), the page must never scroll sideways and every request must stay on the app's own origin.
 // Screenshots at 1280 and 375 pixels wide, light and dark, are written to test-results/. Then the
@@ -79,6 +80,20 @@ async function openFile(page, path, expectText, timeout = 30_000) {
   }
 }
 
+const HIGH_CONTRAST = [
+  ["High Contrast Dark", "#000000"],
+  ["High Contrast Light", "#ffffff"],
+];
+
+async function chooseTheme(page, name, background, label) {
+  const radio = page.getByRole("radiogroup", { name: "Colour theme" }).getByRole("radio", { name: new RegExp(name) });
+  await radio.click();
+  const css = await page.locator(".zc-view style").textContent();
+  if ((await radio.getAttribute("aria-checked")) !== "true" || !css.includes(`background: ${background}`)) {
+    fail(`${label}: the ${name} theme did not apply`);
+  }
+}
+
 async function session(scheme, width) {
   const label = `${scheme} ${width}`;
   console.log(`${label}:`);
@@ -129,6 +144,13 @@ async function session(scheme, width) {
   await noSideways(page, `${label} document open`);
   await page.screenshot({ path: join(out, `app-${scheme}-${width}.png`), fullPage: true });
   await page.locator("#document").screenshot({ path: join(out, `document-${scheme}-${width}.png`) });
+
+  // both high contrast themes, with axe's AAA contrast rule on the reading view
+  for (const [name, background] of HIGH_CONTRAST) {
+    await chooseTheme(page, name, background, label);
+    await axe(page, `${label} ${name}`);
+    await page.locator("#document").screenshot({ path: join(out, `document-${name.replace(/ /g, "-").toLowerCase()}-${scheme}-${width}.png`) });
+  }
 
   // the largest text size must still reflow into the column
   const size = page.getByRole("slider", { name: "Text size" });
@@ -208,6 +230,10 @@ async function touchSession(engine, device, scheme) {
   }
   await openFile(page, join(web, "src/test/fixtures/notes.md"), "Any periodic signal");
   await touch("document open");
+  for (const [name, background] of HIGH_CONTRAST) {
+    await chooseTheme(page, name, background, label);
+    await touch(name);
+  }
   await page.screenshot({ path: join(out, `touch-${device.replace(/ /g, "-")}-${scheme}.png`), fullPage: true });
   for (const e of errors) fail(`${label}: page error: ${e}`);
   await context.close();

@@ -77,18 +77,20 @@ jobs:
           for f in docs/examples/document.json tests/fixtures/slides-signals.pdf tests/fixtures/textbook-two-column.pdf tests/fixtures/notes-numbers.pdf; do
             cargo run -q -p zacess-core --example export -- "$f" out
             cargo run -q -p zacess-core --example export -- "$f" out-low-vision low-vision
+            cargo run -q -p zacess-core --example export -- "$f" out-hc-dark high-contrast-dark
+            cargo run -q -p zacess-core --example export -- "$f" out-hc-light high-contrast-light
           done
       - name: Check the HTML against WCAG 2.2 AA with axe
         working-directory: tools/accessibility
         run: |
           npm ci
           npx playwright install --with-deps chromium
-          node check.mjs ../../out/*.html ../../out-low-vision/*.html
+          node check.mjs ../../out/*.html ../../out-low-vision/*.html ../../out-hc-dark/*.html ../../out-hc-light/*.html
       - name: Check the EPUBs with EPUBCheck
         run: |
           curl -sSL -o epubcheck.zip https://github.com/w3c/epubcheck/releases/download/v5.2.1/epubcheck-5.2.1.zip
           unzip -q epubcheck.zip
-          for f in out/*.epub out-low-vision/*.epub; do
+          for f in out/*.epub out-low-vision/*.epub out-hc-dark/*.epub out-hc-light/*.epub; do
             java -jar epubcheck-5.2.1/epubcheck.jar --quiet --failonwarnings "$f"
           done
 

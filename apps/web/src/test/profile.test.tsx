@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "@/App";
+import { defaultProfile } from "@/core";
 import { openFixture } from "./helpers";
 
 function viewCss(): string {
@@ -55,6 +56,36 @@ describe("reading profiles", () => {
     screen.getByRole("slider", { name: "Column width" }).focus();
     await user.keyboard("{Home}");
     expect(viewCss()).toContain("max-width: 20ch");
+  });
+
+  it("offers both high contrast themes and keeps the choice in this browser", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+    const themes = screen.getByRole("radiogroup", { name: "Colour theme" });
+    expect(within(themes).getAllByRole("radio")).toHaveLength(6);
+    await user.click(within(themes).getByRole("radio", { name: /High Contrast Dark/ }));
+    let css = viewCss();
+    expect(css).toContain("background: #000000; color: #ffffff");
+    expect(css).toContain("color-scheme: dark");
+    expect(css).toContain("#8fd0ff");
+    expect(css).toContain("#f5c400");
+    await user.click(within(themes).getByRole("radio", { name: /High Contrast Light/ }));
+    css = viewCss();
+    expect(css).toContain("background: #ffffff; color: #000000");
+    expect(css).toContain("color-scheme: light");
+    expect(css).toContain("#003d99");
+    expect(JSON.parse(window.localStorage.getItem("zacess.profile") ?? "{}").contrast).toBe("high_contrast_light");
+    unmount();
+    render(<App />);
+    expect(within(screen.getByRole("radiogroup", { name: "Colour theme" })).getByRole("radio", { name: /High Contrast Light/ })).toBeChecked();
+  });
+
+  it("still loads a profile saved with one of the original four themes", () => {
+    window.localStorage.setItem("zacess.profile", JSON.stringify({ ...defaultProfile(), font_size_pt: 20, contrast: "black_on_cream" }));
+    render(<App />);
+    expect(screen.getByRole("radio", { name: /Black text on cream/ })).toBeChecked();
+    expect(screen.getByRole("slider", { name: "Text size" })).toHaveAttribute("aria-valuenow", "20");
+    expect(viewCss()).toContain("#fdf6e3");
   });
 
   it("ignores a damaged saved profile and starts from the standard one", () => {

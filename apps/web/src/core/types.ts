@@ -7,7 +7,9 @@ export type ContrastTheme =
   | "yellow_on_black"
   | "black_on_cream"
   | "high_contrast_dark"
-  | "high_contrast_light";
+  | "high_contrast_light"
+  | "deep_contrast_dark"
+  | "deep_contrast_light";
 export type PresetId = "low_vision" | "dyslexia_friendly" | "reduced_visual_clutter" | "screen_reader";
 
 export interface ReadingProfile {

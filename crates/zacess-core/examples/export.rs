@@ -6,7 +6,8 @@
 //!
 //! The input is imported. A document JSON file is read directly. The preset is one of
 //! `low-vision`, `dyslexia`, `clutter` and `screen-reader`; the standard profile is used otherwise.
-//! `high-contrast-dark` and `high-contrast-light` give the standard profile in that theme.
+//! `high-contrast-dark`, `high-contrast-light`, `deep-contrast-dark` and `deep-contrast-light` give
+//! the standard profile in that theme.
 
 use std::path::Path;
 use zacess_core::export::{
@@ -20,7 +21,7 @@ fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let (Some(input), Some(out_dir)) = (args.first(), args.get(1)) else {
         eprintln!(
-            "usage: export <file> <out-dir> [low-vision|dyslexia|clutter|screen-reader|high-contrast-dark|high-contrast-light]"
+            "usage: export <file> <out-dir> [low-vision|dyslexia|clutter|screen-reader|high-contrast-dark|high-contrast-light|deep-contrast-dark|deep-contrast-light]"
         );
         std::process::exit(2);
     };
@@ -37,6 +38,14 @@ fn main() {
         },
         "high-contrast-light" => ReadingProfile {
             contrast: ContrastTheme::HighContrastLight,
+            ..ReadingProfile::default()
+        },
+        "deep-contrast-dark" => ReadingProfile {
+            contrast: ContrastTheme::DeepContrastDark,
+            ..ReadingProfile::default()
+        },
+        "deep-contrast-light" => ReadingProfile {
+            contrast: ContrastTheme::DeepContrastLight,
             ..ReadingProfile::default()
         },
         other => {

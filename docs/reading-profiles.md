@@ -45,7 +45,7 @@ An example is in [`examples/profile.json`](examples/profile.json). A unit test p
 | `paragraph_spacing` | number | Space after each paragraph in multiples of the font size, 0 to 5 |
 | `character_spacing` | number | Extra space between letters in multiples of the font size, 0 to 0.5 |
 | `column_width` | integer | The longest line in average character widths, 20 to 150 |
-| `contrast` | string | `dark_on_light`, `light_on_dark`, `yellow_on_black`, `black_on_cream`, `high_contrast_dark` or `high_contrast_light` |
+| `contrast` | string | `dark_on_light`, `light_on_dark`, `yellow_on_black`, `black_on_cream`, `high_contrast_dark`, `high_contrast_light`, `deep_contrast_dark` or `deep_contrast_light` |
 | `cursor_size` | string | `standard`, `large` (twice the system size) or `extra_large` (three times) |
 | `reading_ruler.enabled` | boolean | Whether a band follows the line being read |
 | `reading_ruler.position` | number | Where the band sits, from 0 (top of the view) to 1 (bottom) |
@@ -64,12 +64,20 @@ An example is in [`examples/profile.json`](examples/profile.json). A unit test p
 | `black_on_cream` | `#000000` | `#fdf6e3` | 19.5:1 |
 | `high_contrast_dark` | `#ffffff` | `#000000` | 21:1 |
 | `high_contrast_light` | `#000000` | `#ffffff` | 21:1 |
+| `deep_contrast_dark` | `#ffffff` | `#000000` | 21:1 |
+| `deep_contrast_light` | `#000000` | `#ffffff` | 21:1 |
 
 The two high contrast themes match the High Contrast Dark and High Contrast Light
 [code themes](https://zacess.com/themes/). They take the code themes' link and focus colours, use
 the selection colour for the reading ruler and use the other theme's warning colour behind
 low-confidence text. Adding them changed none of the original four ids, so a profile saved before
 them loads unchanged. A unit test reads every id back.
+
+The two deep contrast themes match the Deep Contrast Dark and Deep Contrast Light code themes,
+with a yellow focus ring on the dark one and a red focus ring on the light one. Their links are a
+shade lighter on the dark theme and a shade darker on the light one so they keep 7:1 on the
+reading ruler and the low-confidence background as well as the page. They come after the high
+contrast themes, so every earlier id keeps its meaning.
 
 ### Every colour in each theme
 
@@ -84,8 +92,10 @@ Contrast is measured with the WCAG 2.2 relative luminance formula (`contrast_rat
 | `black_on_cream` | `#003a8c`, 9.8:1 | `#ffd27a`, 14.8:1 | `#003a8c`, 9.8:1 | `#efe3c0`, 16.4:1 |
 | `high_contrast_dark` | `#8fd0ff`, 12.6:1 | `#5a3a00`, 10.3:1 | `#f5c400`, 12.8:1 | `#0a2552`, 15.0:1 |
 | `high_contrast_light` | `#003d99`, 9.9:1 | `#ffd28a`, 14.8:1 | `#003d99`, 9.9:1 | `#fff1a0`, 18.3:1 |
+| `deep_contrast_dark` | `#6bceff`, 11.9:1 | `#403300`, 12.4:1 | `#ffff00`, 19.6:1 | `#1c1c38`, 16.5:1 |
+| `deep_contrast_light` | `#0037df`, 8.0:1 | `#fff1a0`, 18.3:1 | `#b5200d`, 6.6:1 | `#e8f0ff`, 18.3:1 |
 
 Low-confidence text also carries a dotted underline and the focus ring is an outline, so neither
-rests on colour alone. In the two high contrast themes the low-confidence background, the focus
-ring and the ruler are three different colours. Links keep at least 7:1 on the ruler. A unit
-test checks both.
+rests on colour alone. In the high and deep contrast themes the low-confidence background, the
+focus ring and the ruler are three different colours. Links keep at least 7:1 on the ruler and,
+in the deep contrast themes, on the low-confidence background too. Unit tests check all of this.

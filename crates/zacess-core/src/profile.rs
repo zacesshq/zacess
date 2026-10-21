@@ -58,6 +58,12 @@ pub enum ContrastTheme {
     HighContrastDark,
     /// Black text on pure white, the reading view of the High Contrast Light code theme.
     HighContrastLight,
+    /// White text on pure black with a yellow focus ring, the reading view of the Deep Contrast
+    /// Dark code theme.
+    DeepContrastDark,
+    /// Black text on pure white with a red focus ring, the reading view of the Deep Contrast Light
+    /// code theme.
+    DeepContrastLight,
 }
 
 /// The colours a theme resolves to, as `#rrggbb`.
@@ -74,13 +80,15 @@ pub struct Palette {
 
 impl ContrastTheme {
     /// Every theme, in the order the reading settings offer them.
-    pub const ALL: [ContrastTheme; 6] = [
+    pub const ALL: [ContrastTheme; 8] = [
         ContrastTheme::DarkOnLight,
         ContrastTheme::LightOnDark,
         ContrastTheme::YellowOnBlack,
         ContrastTheme::BlackOnCream,
         ContrastTheme::HighContrastDark,
         ContrastTheme::HighContrastLight,
+        ContrastTheme::DeepContrastDark,
+        ContrastTheme::DeepContrastLight,
     ];
 
     /// Whether the theme is dark text on a light background.
@@ -90,6 +98,7 @@ impl ContrastTheme {
             ContrastTheme::DarkOnLight
                 | ContrastTheme::BlackOnCream
                 | ContrastTheme::HighContrastLight
+                | ContrastTheme::DeepContrastLight
         )
     }
 
@@ -144,6 +153,24 @@ impl ContrastTheme {
                 uncertain: "#ffd28a",
                 focus: "#003d99",
                 ruler: "#fff1a0",
+            },
+            // the links are a shade lighter (dark) or darker (light) than the code themes' so they
+            // keep 7:1 on the ruler and the low-confidence background as well as the page
+            ContrastTheme::DeepContrastDark => Palette {
+                text: "#ffffff",
+                background: "#000000",
+                link: "#6bceff",
+                uncertain: "#403300",
+                focus: "#ffff00",
+                ruler: "#1c1c38",
+            },
+            ContrastTheme::DeepContrastLight => Palette {
+                text: "#000000",
+                background: "#ffffff",
+                link: "#0037df",
+                uncertain: "#fff1a0",
+                focus: "#b5200d",
+                ruler: "#e8f0ff",
             },
         }
     }
@@ -747,6 +774,8 @@ mod tests {
         for theme in [
             ContrastTheme::HighContrastDark,
             ContrastTheme::HighContrastLight,
+            ContrastTheme::DeepContrastDark,
+            ContrastTheme::DeepContrastLight,
         ] {
             let p = theme.palette();
             assert!(
@@ -770,11 +799,27 @@ mod tests {
         }
         assert!(ContrastTheme::HighContrastLight.is_light());
         assert!(!ContrastTheme::HighContrastDark.is_light());
+        assert!(ContrastTheme::DeepContrastLight.is_light());
+        assert!(!ContrastTheme::DeepContrastDark.is_light());
+    }
+
+    #[test]
+    fn deep_contrast_links_stay_readable_on_every_fill() {
+        for theme in [
+            ContrastTheme::DeepContrastDark,
+            ContrastTheme::DeepContrastLight,
+        ] {
+            let p = theme.palette();
+            assert!(
+                contrast_ratio(p.link, p.uncertain) >= 7.0,
+                "{theme:?} link on the low-confidence background"
+            );
+        }
     }
 
     #[test]
     fn every_theme_id_reads_back_including_the_original_four() {
-        // profiles saved before the high contrast themes existed must still load unchanged
+        // profiles saved before the high and deep contrast themes existed must still load unchanged
         let ids = [
             ("dark_on_light", ContrastTheme::DarkOnLight),
             ("light_on_dark", ContrastTheme::LightOnDark),
@@ -782,6 +827,8 @@ mod tests {
             ("black_on_cream", ContrastTheme::BlackOnCream),
             ("high_contrast_dark", ContrastTheme::HighContrastDark),
             ("high_contrast_light", ContrastTheme::HighContrastLight),
+            ("deep_contrast_dark", ContrastTheme::DeepContrastDark),
+            ("deep_contrast_light", ContrastTheme::DeepContrastLight),
         ];
         assert_eq!(ids.len(), ContrastTheme::ALL.len());
         for (id, theme) in ids {

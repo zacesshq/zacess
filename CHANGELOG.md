@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Added
+
+- Deep Contrast Dark (white on black with a yellow focus ring) and Deep Contrast Light (black on white with a red focus ring) reading themes that match the Deep Contrast code themes, with 21:1 text contrast and links at 7:1 or more on the page, the reading ruler and the low-confidence background, in the core, both exports and the browser version. Profiles saved with earlier themes load unchanged.
+
 ## 2026-10-19
 
 ### Added

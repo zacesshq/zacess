@@ -62,7 +62,7 @@ describe("reading profiles", () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
     const themes = screen.getByRole("radiogroup", { name: "Colour theme" });
-    expect(within(themes).getAllByRole("radio")).toHaveLength(6);
+    expect(within(themes).getAllByRole("radio")).toHaveLength(8);
     await user.click(within(themes).getByRole("radio", { name: /High Contrast Dark/ }));
     let css = viewCss();
     expect(css).toContain("background: #000000; color: #ffffff");
@@ -78,6 +78,25 @@ describe("reading profiles", () => {
     unmount();
     render(<App />);
     expect(within(screen.getByRole("radiogroup", { name: "Colour theme" })).getByRole("radio", { name: /High Contrast Light/ })).toBeChecked();
+  });
+
+  it("offers both deep contrast themes with their own link and focus colours", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const themes = screen.getByRole("radiogroup", { name: "Colour theme" });
+    await user.click(within(themes).getByRole("radio", { name: /Deep Contrast Dark/ }));
+    let css = viewCss();
+    expect(css).toContain("background: #000000; color: #ffffff");
+    expect(css).toContain("color-scheme: dark");
+    expect(css).toContain("#6bceff");
+    expect(css).toContain("#ffff00");
+    await user.click(within(themes).getByRole("radio", { name: /Deep Contrast Light/ }));
+    css = viewCss();
+    expect(css).toContain("background: #ffffff; color: #000000");
+    expect(css).toContain("color-scheme: light");
+    expect(css).toContain("#0037df");
+    expect(css).toContain("#b5200d");
+    expect(JSON.parse(window.localStorage.getItem("zacess.profile") ?? "{}").contrast).toBe("deep_contrast_light");
   });
 
   it("still loads a profile saved with one of the original four themes", () => {

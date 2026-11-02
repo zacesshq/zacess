@@ -24,4 +24,4 @@ Zacess is pre-release. Only the latest commit on `main` receives security fixes.
 ## Reporting a vulnerability
 
 > [!IMPORTANT]
-> Report privately, never in a public issue or discussion. Use [GitHub private vulnerability reporting](https://github.com/zacesshq/zacess/security/advisories/new) or email [contact@zacess.com](mailto:contact@zacess.com) with details and reproduction steps. Expect an acknowledgement within a few days.
+> Report privately, never in a public issue or discussion. Use [GitHub private vulnerability reporting](https://github.com/zacesshq/zacess/security/advisories/new) or email [security@zacess.com](mailto:security@zacess.com) with details and reproduction steps. Expect an acknowledgement within a few days.

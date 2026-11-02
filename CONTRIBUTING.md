@@ -30,3 +30,7 @@ Thank you for helping make reading accessible. This guide covers how work moves 
 
 Open an issue with the document type, what you expected and what happened. For an OCR or reading-order
 problem, attach the page if you are allowed to share it.
+
+## Using AI
+
+AI tools are welcome within the [AI policy](https://github.com/zacesshq/.github/blob/main/AI_POLICY.md). **Every pull request must say how AI was used, even when the answer is None.** Write your own issue and pull request titles and descriptions, understand everything you submit and test it before you open it.

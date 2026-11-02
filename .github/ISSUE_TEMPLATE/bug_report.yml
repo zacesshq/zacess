@@ -48,6 +48,16 @@ body:
       label: Device and version
       description: The operating system, the browser for the browser version and the Zacess version or commit.
       placeholder: macOS 26, Safari 26, app.zacess.com
+  - type: dropdown
+    id: ai-use
+    attributes:
+      label: AI use
+      description: "Required. Did AI help you find, test or check this? Write the title and description yourself either way. See the [AI policy](https://github.com/zacesshq/.github/blob/main/AI_POLICY.md). Dictation, translation and spelling tools do not count."
+      options:
+        - No AI was used
+        - "Yes: AI helped me find, test or check it"
+    validations:
+      required: true
   - type: checkboxes
     id: checks
     attributes:

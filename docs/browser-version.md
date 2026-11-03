@@ -29,8 +29,8 @@ the one item that cannot be checked here.
    never fetched by the app.
 9. The app says once, in its footer, that every file is read in the browser and nothing is
    uploaded, makes no request to any other origin and keeps no account, cookie or analytics.
-10. axe-core finds no WCAG 2.2 A or AA violations on the main screens, in jsdom and in Chromium,
-    and no AAA contrast violation in the reading view. Every control is labelled, focus is always
+10. axe-core finds no WCAG 2.2 A or AA violations on the main screens, in jsdom and in Chromium.
+    It finds no AAA contrast violation in the reading view either. Every control is labelled, focus is always
     visible, there is a skip link and landmarks, colour is never the only signal, motion follows
     the reduced motion setting and the layout works at 320 pixels wide.
 11. Testing with VoiceOver, NVDA, JAWS, TalkBack and Orca and with students who use them is done by
@@ -45,7 +45,7 @@ the one item that cannot be checked here.
 | Panel | Open a document, reading settings, read aloud and export. From 768 pixels wide (an iPad in portrait) it sits beside the document; on phones it comes before and after it |
 | Read aloud bar | With a document open, Play (Pause or Resume once reading), Stop, Previous sentence, Next sentence, Speed and the status line sit in one bar above the document that stays at the top of the viewport while the document is on screen, so they are reachable without scrolling. Every button is at least 44 pixels square and named; below 640 pixels the button names are for screen readers only so the five buttons fit one row at 320 pixels wide. The bar comes before the document in the tab order. The focus stays on the button pressed (Play becomes Pause in place). The page scrolls only when the sentence being read leaves the viewport, by the least distance that brings it back below the bar. It never scrolls when the sentence is already in view. Scrolling is instant so it follows the reduced motion setting. The bar hides with the panel. Voice, online voices and web addresses stay in the panel |
 | Hide panel | Once a document is open, a "Hide panel" button above the layout hides the whole panel so the document takes the full width. "Show panel" brings it back. The button carries `aria-expanded` and `aria-controls`, keeps the focus when pressed and works the same on phones. The choice is kept under `zacess.panel`. With no document open the panel is always shown. Progress messages and errors stay visible and announced while the panel is hidden. Nothing animates |
-| Footer | The one statement of how files are handled, then the licence |
+| Footer | The one statement of how files are handled, then the copyright line and the licence. A footer navigation links, in this order, to Docs, Privacy, Accessibility, Security and Contact on [zacess.com](https://zacess.com) and to the source code and the issue forms on GitHub. Every footer link leaves the app, carries `rel="noreferrer"` and is at least 44 pixels tall and wide |
 
 Links to the website are plain navigation, so the Content Security Policy needs no change for them.
 
@@ -185,11 +185,11 @@ The app is laid out and operated for touch as well as for a mouse and keyboard.
   photo" button opens the rear camera (`accept="image/*"` with `capture="environment"`) and the
   picture goes through text recognition like any image. A photo keeps the turn stored in its file
   and is drawn no larger than 12 million pixels, under the limit Safari puts on a canvas.
-- Read aloud speaks its first sentence inside the tap on Play, which iPhone and iPad require, and
+- Read aloud speaks its first sentence inside the tap on Play, which iPhone and iPad require. It
   does not cancel first when nothing is speaking. The voice list fills on `voiceschanged` and is
   also looked at again for a few seconds, for WebKit builds that fill it without the event.
-- An export is saved with the `download` attribute. A browser without it opens the file instead,
-  and the file's address is kept for a minute because Safari can read it after the tap returns.
+- An export is saved with the `download` attribute. A browser without it opens the file instead.
+  The file's address is kept for a minute because Safari can read it after the tap returns.
 - The colour mode menu keeps 8 pixels from the screen edge. The full address of a document link
   shows on focus, so tapping the link in the links list shows it too.
 - A web app manifest, an apple-touch-icon and light and dark theme colours let the app be added to

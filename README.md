@@ -2,6 +2,10 @@
 
 **Make every page accessible.**
 
+[![CI](https://github.com/zacesshq/zacess/actions/workflows/ci.yml/badge.svg)](https://github.com/zacesshq/zacess/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/zacesshq/zacess?label=release)](https://github.com/zacesshq/zacess/releases/latest)
+[![Licence: AGPL-3.0](https://img.shields.io/badge/licence-AGPL--3.0-green.svg)](LICENSE)
+
 Zacess (said like "success", za-SESS) turns lecture slides, PDFs, textbook pages, handouts, whiteboards and web
 pages into structured, high-contrast notes in each reader's own reading profile. It reads them aloud
 and keeps them as study material on every device, offline first.

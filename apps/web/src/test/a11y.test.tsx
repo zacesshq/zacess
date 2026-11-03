@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "@/App";
+import { copyrightYears } from "@/lib/site";
 import { axeViolations, openFixture } from "./helpers";
 import { installSpeech, removeSpeech } from "./speech-mock";
 
@@ -42,6 +43,50 @@ describe("axe-core", () => {
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Zacess home" })).toHaveAttribute("href", "https://zacess.com");
     expect(screen.getByRole("link", { name: "About Zacess" })).toHaveAttribute("href", "https://zacess.com");
+  });
+
+  it("has a footer with the copyright line, the licence and links to the website and GitHub, in order", () => {
+    render(<App />);
+    const footer = screen.getByRole("contentinfo");
+    expect(footer).toHaveTextContent(/Copyright 2026( to \d{4})? Zacess\. Zacess is free software under the GNU Affero General Public License v3\.0\./);
+    expect(within(footer).getByRole("link", { name: "GNU Affero General Public License v3.0" })).toHaveAttribute(
+      "href",
+      "https://github.com/zacesshq/zacess/blob/main/LICENSE",
+    );
+    const nav = within(footer).getByRole("navigation", { name: "Footer" });
+    expect(within(nav).getAllByRole("link").map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+      ["Docs", "https://zacess.com/docs/"],
+      ["Privacy", "https://zacess.com/privacy/"],
+      ["Accessibility", "https://zacess.com/accessibility/"],
+      ["Security", "https://zacess.com/security/"],
+      ["Contact", "https://zacess.com/contact/"],
+      ["Source code", "https://github.com/zacesshq/zacess"],
+      ["Report a problem", "https://github.com/zacesshq/zacess/issues/new/choose"],
+    ]);
+    for (const link of within(footer).getAllByRole("link")) {
+      // every footer link leaves the app, so none passes the app's address on
+      expect(link).toHaveAttribute("rel", "noreferrer");
+      expect(link.getAttribute("href")).toMatch(/^https:\/\/(zacess\.com|github\.com\/zacesshq\/zacess)(\/|$)/);
+    }
+    // jsdom has no layout, so the 44 pixel box is asserted by its classes here and measured by scripts/check-browser.mjs
+    for (const link of within(nav).getAllByRole("link")) expect(link).toHaveClass("min-h-11", "min-w-11");
+  });
+
+  it("reaches every footer link in order with the keyboard", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const footer = screen.getByRole("contentinfo");
+    within(footer).getByRole("link", { name: "GNU Affero General Public License v3.0" }).focus();
+    for (const link of within(within(footer).getByRole("navigation", { name: "Footer" })).getAllByRole("link")) {
+      await user.tab();
+      expect(link).toHaveFocus();
+    }
+  });
+
+  it("writes the copyright year as one year or as a range", () => {
+    expect(copyrightYears(2026, 2026)).toBe("2026");
+    expect(copyrightYears(2026, 2027)).toBe("2026 to 2027");
+    expect(copyrightYears(2026)).toMatch(/^2026( to \d{4})?$/);
   });
 
   it("states the privacy promise once, in the footer", () => {

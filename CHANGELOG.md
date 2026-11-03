@@ -6,13 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-### Changed
+## [0.1.0] - 2026-11-03
 
-- Community files follow the [AI policy](https://github.com/zacesshq/.github/blob/main/AI_POLICY.md): pull requests declare AI use and issue forms ask whether AI helped. Security reports go to security@zacess.com.
+The first tagged release. The version is shared by the Cargo workspace, the browser version and the app placeholder, so the website's documentation can point at a tag instead of `main`.
 
 ### Added
 
 - Deep Contrast Dark (white on black with a yellow focus ring) and Deep Contrast Light (black on white with a red focus ring) reading themes that match the Deep Contrast code themes, with 21:1 text contrast and links at 7:1 or more on the page, the reading ruler and the low-confidence background, in the core, both exports and the browser version. Profiles saved with earlier themes load unchanged.
+- A copyright line in the browser version's footer and footer links to the documentation, privacy, accessibility, security and contact pages on [zacess.com](https://zacess.com), the source code and the issue forms, in the website's order. Every footer link leaves the app without passing its address on. The accessibility tests now cover the footer landmark, its links, their order and keyboard reach.
+- CI, release and licence badges on the README.
+
+### Changed
+
+- Community files follow the [AI policy](https://github.com/zacesshq/.github/blob/main/AI_POLICY.md): pull requests declare AI use and issue forms ask whether AI helped. Security reports go to security@zacess.com.
+- CI also runs on a push to `main`, so the README badge reports the state of the default branch. The document quality job compares against the base branch's baseline only when there is one.
+- Routine tidy-up.
 
 ## 2026-10-19
 

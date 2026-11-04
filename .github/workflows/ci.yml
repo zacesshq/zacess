@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
 
 permissions:
@@ -46,10 +48,13 @@ jobs:
           BASE: ${{ github.base_ref }}
         run: |
           baselines="--baseline tests/fixtures/baseline.json"
-          # the base branch's baseline stops a pull request from passing by lowering its own
-          git fetch --depth=1 origin "$BASE"
-          if git show "origin/$BASE:tests/fixtures/baseline.json" > "$RUNNER_TEMP/base-baseline.json" 2>/dev/null; then
-            baselines="$baselines --baseline $RUNNER_TEMP/base-baseline.json"
+          # the base branch's baseline stops a pull request from passing by lowering its own;
+          # a push to main has no base branch, so only the repository's own baseline applies
+          if [ -n "$BASE" ]; then
+            git fetch --depth=1 origin "$BASE"
+            if git show "origin/$BASE:tests/fixtures/baseline.json" > "$RUNNER_TEMP/base-baseline.json" 2>/dev/null; then
+              baselines="$baselines --baseline $RUNNER_TEMP/base-baseline.json"
+            fi
           fi
           echo "BASELINES=$baselines" >> "$GITHUB_ENV"
       - name: Score the document quality suite

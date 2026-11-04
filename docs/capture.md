@@ -155,8 +155,8 @@ that cannot be checked here.
 | Bands | The bands of content are compared as for [boards](#repeats-versions-and-new-boards): the frames are lined up by the shift that matches best, up to 8 cells. Each band is then matched by its column profile. A change of up to 15% of the content with no whole line added or taken away is a repeat. More than 60% of the earlier content gone is a different slide. Anything between is a step of the same slide |
 | Keep | A change is held until two frames in a row agree on it. A frame caught in a fade never agrees with the next and is dropped. When a repeat is sharper than the kept frame by 5% it replaces it |
 
-A frame is compared with the latest step of every slide and every step of the slide on screen, and
-the closest wins. A frame that matches another slide or an earlier step of the slide on screen is a return and is recorded with its time. The
+A frame is compared with the latest step of every slide and every step of the slide on screen. The
+closest wins. A frame that matches another slide or an earlier step of the slide on screen is a return and is recorded with its time. The
 slide's hash and content are those of the first frame to show that state, so a run of near repeats
 cannot wander off. When a session is loaded again the content is rebuilt from the files.
 

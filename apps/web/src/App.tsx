@@ -19,6 +19,7 @@ import { useTheme } from "@/lib/theme";
 import { useReadAloud } from "@/lib/useReadAloud";
 import type { Sentence } from "@/lib/speech";
 import { cn, fileStem } from "@/lib/utils";
+import { COPYRIGHT_FROM, REPO, SITE, copyrightYears, footerLinks } from "@/lib/site";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExportPanel } from "@/components/ExportPanel";
@@ -31,18 +32,6 @@ import { ReadingView, VIEW_SCOPE, type ReadingViewHandle } from "@/components/Re
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 const LANGUAGE = "en-GB";
-
-/** The project's website. A plain link, so it needs nothing in the Content Security Policy. */
-const SITE = "https://zacess.com";
-
-const footerLinks: [string, string][] = [
-  ["Code themes", `${SITE}/themes/`],
-  ["Privacy", `${SITE}/privacy/`],
-  ["Accessibility", `${SITE}/accessibility/`],
-  ["Contact", `${SITE}/contact/`],
-  ["Report a problem", "https://github.com/zacesshq/zacess/issues/new/choose"],
-  ["Source code", "https://github.com/zacesshq/zacess"],
-];
 
 const OPEN_PANEL = "panel-open";
 const SETTINGS_PANEL = "panel-settings";
@@ -369,8 +358,8 @@ export default function App() {
               Your files and settings stay in this browser: nothing is uploaded and nothing is tracked.
             </p>
             <p className="m-0">
-              Zacess is free software under the{" "}
-              <a className="underline underline-offset-2" href="https://github.com/zacesshq/zacess/blob/main/LICENSE">
+              Copyright {copyrightYears(COPYRIGHT_FROM)} Zacess. Zacess is free software under the{" "}
+              <a className="underline underline-offset-2" href={`${REPO}/blob/main/LICENSE`} rel="noreferrer">
                 GNU Affero General Public License v3.0
               </a>
               .
@@ -380,7 +369,8 @@ export default function App() {
             <ul className="m-0 flex list-none flex-wrap gap-x-5 p-0">
               {footerLinks.map(([label, href]) => (
                 <li key={href}>
-                  <a className="inline-flex min-h-11 items-center font-bold underline underline-offset-2" href={href}>
+                  {/* a short label such as "Docs" is narrower than a touch target, so the link box has a minimum width as well as height */}
+                  <a className="inline-flex min-h-11 min-w-11 items-center font-bold underline underline-offset-2" href={href} rel="noreferrer">
                     {label}
                   </a>
                 </li>

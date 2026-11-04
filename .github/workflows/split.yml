@@ -69,4 +69,6 @@ jobs:
               export GIT_COMMITTER_NAME="Zac Bot" GIT_COMMITTER_EMAIL="automation@isaacadjei.me"
             fi
           ' "publish-$REPO"
-          git push "https://x-access-token:${SPLIT_TOKEN}@github.com/zacesshq/${REPO}.git" "publish-$REPO:main"
+          # the copies are read-only mirrors of this history, so the push replaces their main
+          # outright: after a rewrite here the split commits change too and a plain push is refused
+          git push --force "https://x-access-token:${SPLIT_TOKEN}@github.com/zacesshq/${REPO}.git" "publish-$REPO:main"

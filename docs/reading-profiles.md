@@ -20,6 +20,7 @@ A reading profile is how a person wants every document laid out. It lives in
 | Dyslexia-Friendly | Lexend | 16 pt | 1.75 | 0.12 em | 60 characters | Black on cream | Large cursor, two-line reading ruler |
 | Reduced Visual Clutter | System | 14 pt | 1.5 | None | 65 characters | Dark on light | Decoration hidden |
 | Screen Reader | System | 14 pt | 1.5 | None | 70 characters | Dark on light | Decoration hidden, no ruler |
+| Gentle Warm | System | 14 pt | 1.6 | None | 65 characters | Warm Dark | No ruler |
 
 Every preset uses one column and no motion. A preset is a starting point: it can be saved under a new
 name and changed.
@@ -45,7 +46,7 @@ An example is in [`examples/profile.json`](examples/profile.json). A unit test p
 | `paragraph_spacing` | number | Space after each paragraph in multiples of the font size, 0 to 5 |
 | `character_spacing` | number | Extra space between letters in multiples of the font size, 0 to 0.5 |
 | `column_width` | integer | The longest line in average character widths, 20 to 150 |
-| `contrast` | string | `dark_on_light`, `light_on_dark`, `yellow_on_black`, `black_on_cream`, `high_contrast_dark`, `high_contrast_light`, `deep_contrast_dark` or `deep_contrast_light` |
+| `contrast` | string | `dark_on_light`, `light_on_dark`, `yellow_on_black`, `black_on_cream`, `high_contrast_dark`, `high_contrast_light`, `deep_contrast_dark`, `deep_contrast_light`, `warm_dark` or `warm_light` |
 | `cursor_size` | string | `standard`, `large` (twice the system size) or `extra_large` (three times) |
 | `reading_ruler.enabled` | boolean | Whether a band follows the line being read |
 | `reading_ruler.position` | number | Where the band sits, from 0 (top of the view) to 1 (bottom) |
@@ -66,6 +67,8 @@ An example is in [`examples/profile.json`](examples/profile.json). A unit test p
 | `high_contrast_light` | `#000000` | `#ffffff` | 21:1 |
 | `deep_contrast_dark` | `#ffffff` | `#000000` | 21:1 |
 | `deep_contrast_light` | `#000000` | `#ffffff` | 21:1 |
+| `warm_dark` | `#e5d5b6` | `#211b17` | 11.7:1 |
+| `warm_light` | `#342410` | `#f4ead5` | 12.5:1 |
 
 The two high contrast themes match the High Contrast Dark and High Contrast Light
 [code themes](https://zacess.com/themes/). They take the code themes' link and focus colours, use
@@ -78,6 +81,16 @@ with a yellow focus ring on the dark one and a red focus ring on the light one. 
 shade lighter on the dark theme and a shade darker on the light one so they keep 7:1 on the
 reading ruler and the low-confidence background as well as the page. They come after the high
 contrast themes, so every earlier id keeps its meaning.
+
+The two warm themes match the Warm Dark and Warm Light code themes, for readers who find the high
+and deep contrast themes too intense. Their text sits at about 12:1, softer than 21:1 yet well
+above the reading floor. The code themes promise 4.5:1, so the reader does not take their colours
+as they are. The link is a shade lighter on the dark theme and a shade darker on the light one.
+The ruler and low-confidence fills are a shade further from the text colour than the code themes'
+selection and find colours. Together these keep body text and links at 7:1 or more on the page,
+the reading ruler and the low-confidence background alike. The focus ring is teal on the dark theme and blue on the light
+one, so it never shares a hue with the amber or brown links. The Gentle Warm preset reads in Warm
+Dark. Both themes come after the deep contrast themes, so every earlier id keeps its meaning.
 
 ### Every colour in each theme
 
@@ -94,8 +107,12 @@ Contrast is measured with the WCAG 2.2 relative luminance formula (`contrast_rat
 | `high_contrast_light` | `#003d99`, 9.9:1 | `#ffd28a`, 14.8:1 | `#003d99`, 9.9:1 | `#fff1a0`, 18.3:1 |
 | `deep_contrast_dark` | `#6bceff`, 11.9:1 | `#403300`, 12.4:1 | `#ffff00`, 19.6:1 | `#1c1c38`, 16.5:1 |
 | `deep_contrast_light` | `#0037df`, 8.0:1 | `#fff1a0`, 18.3:1 | `#b5200d`, 6.6:1 | `#e8f0ff`, 18.3:1 |
+| `warm_dark` | `#f0c27e`, 10.3:1 | `#422a02`, 9.3:1 | `#7abad3`, 7.9:1 | `#24384a`, 8.4:1 |
+| `warm_light` | `#5a2f02`, 9.5:1 | `#f3d08a`, 10.1:1 | `#215779`, 6.5:1 | `#d6d9ea`, 10.6:1 |
 
 Low-confidence text also carries a dotted underline and the focus ring is an outline, so neither
 rests on colour alone. In the high and deep contrast themes the low-confidence background, the
 focus ring and the ruler are three different colours. Links keep at least 7:1 on the ruler and,
-in the deep contrast themes, on the low-confidence background too. Unit tests check all of this.
+in the deep contrast and warm themes, on the low-confidence background too. In the warm themes the
+link, the low-confidence background, the focus ring and the ruler are four different colours. Unit
+tests check all of this.

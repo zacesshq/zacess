@@ -20,7 +20,8 @@ and keeps them as study material on every device, offline first.
 
 - Import PDF, PowerPoint, Word and images, with OCR where a document has no text layer
 - OCR confidence highlighting, so a misread number or symbol is flagged for checking
-- Reading profiles with presets for low vision, dyslexia, reduced visual clutter and screen readers
+- Reading profiles with presets for low vision, dyslexia, reduced visual clutter, screen readers and a
+  gentle warm reading view
 - Magnification and read aloud with word highlighting and personalised audio controls
 - A reliable local library with autosave, version history and backups
 - Accessible exports: HTML, EPUB3, DOCX and MP3

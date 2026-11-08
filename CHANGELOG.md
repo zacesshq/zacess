@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-08
+
+### Added
+
+- Warm Dark (cream on warm dark brown) and Warm Light (dark brown on warm paper) reading themes that match the Warm code themes, for readers who find the high contrast themes too intense. Text sits at about 12:1 and links stay at 7:1 or more on the page, the reading ruler and the low-confidence background, in the core, both exports and the browser version. A Gentle Warm preset reads in Warm Dark at 14 pt with 1.6 line spacing, wider paragraph spacing, a 65 character column and no ruler. Profiles saved with earlier themes load unchanged.
+- The `export` example takes `gentle-warm`, `warm-dark` and `warm-light`. CI exports the sample documents in both warm themes, checks the HTML and runs EPUBCheck on the EPUB files. The browser check reads in both warm themes with axe's AAA contrast rule.
+
+### Changed
+
+- The README lists the Gentle Warm preset. [docs/reading-profiles.md](docs/reading-profiles.md) adds the preset, both warm themes and their measured colours. [docs/browser-version.md](docs/browser-version.md) lists both warm themes among the browser checks.
+- SUPPORT.md gives support@zacess.com for help with the reader or the browser version and for private accessibility reports, as does the accessibility barrier form, with contact@zacess.com kept for anything else.
+
 ## [0.1.0] - 2026-11-03
 
 The first tagged release. The version is shared by the Cargo workspace, the browser version and the app placeholder, so the website's documentation can point at a tag instead of `main`.

@@ -64,6 +64,12 @@ pub enum ContrastTheme {
     /// Black text on pure white with a red focus ring, the reading view of the Deep Contrast Light
     /// code theme.
     DeepContrastLight,
+    /// Cream text on warm dark brown with an amber link and a teal focus ring, the reading view of
+    /// the Warm Dark code theme.
+    WarmDark,
+    /// Dark brown text on warm paper with a brown link and a blue focus ring, the reading view of
+    /// the Warm Light code theme.
+    WarmLight,
 }
 
 /// The colours a theme resolves to, as `#rrggbb`.
@@ -80,7 +86,7 @@ pub struct Palette {
 
 impl ContrastTheme {
     /// Every theme, in the order the reading settings offer them.
-    pub const ALL: [ContrastTheme; 8] = [
+    pub const ALL: [ContrastTheme; 10] = [
         ContrastTheme::DarkOnLight,
         ContrastTheme::LightOnDark,
         ContrastTheme::YellowOnBlack,
@@ -89,6 +95,8 @@ impl ContrastTheme {
         ContrastTheme::HighContrastLight,
         ContrastTheme::DeepContrastDark,
         ContrastTheme::DeepContrastLight,
+        ContrastTheme::WarmDark,
+        ContrastTheme::WarmLight,
     ];
 
     /// Whether the theme is dark text on a light background.
@@ -99,6 +107,7 @@ impl ContrastTheme {
                 | ContrastTheme::BlackOnCream
                 | ContrastTheme::HighContrastLight
                 | ContrastTheme::DeepContrastLight
+                | ContrastTheme::WarmLight
         )
     }
 
@@ -171,6 +180,26 @@ impl ContrastTheme {
                 uncertain: "#fff1a0",
                 focus: "#b5200d",
                 ruler: "#e8f0ff",
+            },
+            // the code themes only promise 4.5:1, so the link is a shade lighter (dark) or darker
+            // (light) than theirs and the ruler and low-confidence fills sit a shade further from
+            // the text than their selection and find colours, which keeps every reading pair at
+            // 7:1 or more
+            ContrastTheme::WarmDark => Palette {
+                text: "#e5d5b6",
+                background: "#211b17",
+                link: "#f0c27e",
+                uncertain: "#422a02",
+                focus: "#7abad3",
+                ruler: "#24384a",
+            },
+            ContrastTheme::WarmLight => Palette {
+                text: "#342410",
+                background: "#f4ead5",
+                link: "#5a2f02",
+                uncertain: "#f3d08a",
+                focus: "#215779",
+                ruler: "#d6d9ea",
             },
         }
     }
@@ -247,14 +276,16 @@ pub enum Preset {
     DyslexiaFriendly,
     ReducedVisualClutter,
     ScreenReader,
+    GentleWarm,
 }
 
 impl Preset {
-    pub const ALL: [Preset; 4] = [
+    pub const ALL: [Preset; 5] = [
         Preset::LowVision,
         Preset::DyslexiaFriendly,
         Preset::ReducedVisualClutter,
         Preset::ScreenReader,
+        Preset::GentleWarm,
     ];
 
     pub fn name(self) -> &'static str {
@@ -263,6 +294,7 @@ impl Preset {
             Preset::DyslexiaFriendly => "Dyslexia-Friendly",
             Preset::ReducedVisualClutter => "Reduced Visual Clutter",
             Preset::ScreenReader => "Screen Reader",
+            Preset::GentleWarm => "Gentle Warm",
         }
     }
 }
@@ -360,6 +392,16 @@ impl ReadingProfile {
                     position: 0.4,
                     lines: 1,
                 },
+                ..base
+            },
+            // for readers who find pure white on black or black on white glaring: softer warm
+            // colours that still keep 7:1, a little more room between lines and no ruler band
+            Preset::GentleWarm => Self {
+                font_size_pt: 14.0,
+                line_spacing: 1.6,
+                paragraph_spacing: 1.5,
+                column_width: 65,
+                contrast: ContrastTheme::WarmDark,
                 ..base
             },
         }
@@ -743,6 +785,10 @@ mod tests {
         assert!(ReadingProfile::preset(Preset::LowVision).font_size_pt >= 18.0);
         assert!(ReadingProfile::preset(Preset::DyslexiaFriendly).character_spacing > 0.0);
         assert!(ReadingProfile::preset(Preset::ReducedVisualClutter).hide_decoration);
+        assert_eq!(
+            ReadingProfile::preset(Preset::GentleWarm).contrast,
+            ContrastTheme::WarmDark
+        );
     }
 
     #[test]
@@ -818,8 +864,44 @@ mod tests {
     }
 
     #[test]
+    fn warm_themes_stay_gentle_yet_keep_every_reading_pair_at_aaa() {
+        for theme in [ContrastTheme::WarmDark, ContrastTheme::WarmLight] {
+            let p = theme.palette();
+            let text = contrast_ratio(p.text, p.background);
+            // softer than the high and deep contrast themes, still well above the 7:1 floor
+            assert!((10.0..21.0).contains(&text), "{theme:?} text {text}");
+            for (fill, name) in [
+                (p.background, "page"),
+                (p.ruler, "ruler"),
+                (p.uncertain, "low-confidence background"),
+            ] {
+                assert!(
+                    contrast_ratio(p.text, fill) >= 7.0,
+                    "{theme:?} text on the {name}"
+                );
+                assert!(
+                    contrast_ratio(p.link, fill) >= 7.0,
+                    "{theme:?} link on the {name}"
+                );
+            }
+            assert!(
+                contrast_ratio(p.focus, p.background) >= 3.0,
+                "{theme:?} focus ring"
+            );
+            let states = [p.link, p.uncertain, p.focus, p.ruler];
+            for (i, a) in states.iter().enumerate() {
+                for b in &states[i + 1..] {
+                    assert_ne!(a, b, "{theme:?} states share a colour");
+                }
+            }
+        }
+        assert!(ContrastTheme::WarmLight.is_light());
+        assert!(!ContrastTheme::WarmDark.is_light());
+    }
+
+    #[test]
     fn every_theme_id_reads_back_including_the_original_four() {
-        // profiles saved before the high and deep contrast themes existed must still load unchanged
+        // profiles saved before the high, deep and warm themes existed must still load unchanged
         let ids = [
             ("dark_on_light", ContrastTheme::DarkOnLight),
             ("light_on_dark", ContrastTheme::LightOnDark),
@@ -829,6 +911,8 @@ mod tests {
             ("high_contrast_light", ContrastTheme::HighContrastLight),
             ("deep_contrast_dark", ContrastTheme::DeepContrastDark),
             ("deep_contrast_light", ContrastTheme::DeepContrastLight),
+            ("warm_dark", ContrastTheme::WarmDark),
+            ("warm_light", ContrastTheme::WarmLight),
         ];
         assert_eq!(ids.len(), ContrastTheme::ALL.len());
         for (id, theme) in ids {

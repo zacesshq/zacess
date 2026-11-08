@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for telling us. We treat an accessibility barrier as a bug. You never need to share a diagnosis or anything personal: describe what happened and we will work from that. If you would rather report privately, email contact@zacess.com.
+        Thank you for telling us. We treat an accessibility barrier as a bug. You never need to share a diagnosis or anything personal: describe what happened and we will work from that. If you would rather report privately, email support@zacess.com.
   - type: dropdown
     id: component
     attributes:

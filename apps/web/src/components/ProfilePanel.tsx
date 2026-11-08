@@ -18,6 +18,8 @@ export const THEMES: { id: ContrastTheme; name: string; text: string; background
   { id: "high_contrast_light", name: "High Contrast Light, black text on white", text: "#000000", background: "#ffffff" },
   { id: "deep_contrast_dark", name: "Deep Contrast Dark, white text on black with yellow focus", text: "#ffffff", background: "#000000" },
   { id: "deep_contrast_light", name: "Deep Contrast Light, black text on white with red focus", text: "#000000", background: "#ffffff" },
+  { id: "warm_dark", name: "Warm Dark, cream text on warm dark brown", text: "#e5d5b6", background: "#211b17" },
+  { id: "warm_light", name: "Warm Light, dark brown text on warm paper", text: "#342410", background: "#f4ead5" },
 ];
 
 export const STANDARD = "standard";

@@ -4,7 +4,8 @@
 
 - **Questions and ideas:** start a thread in [Discussions](https://github.com/orgs/zacesshq/discussions).
 - **Bugs:** open an issue on [zacesshq/zacess](https://github.com/zacesshq/zacess/issues/new/choose) with the bug report form.
-- **Accessibility barriers:** use the [accessibility barrier form](https://github.com/zacesshq/zacess/issues/new?template=accessibility_barrier.yml). An accessibility problem is a bug. You never need to share a diagnosis or anything personal. To report privately, email [contact@zacess.com](mailto:contact@zacess.com).
+- **Accessibility barriers:** use the [accessibility barrier form](https://github.com/zacesshq/zacess/issues/new?template=accessibility_barrier.yml). An accessibility problem is a bug. You never need to share a diagnosis or anything personal. To report privately, email [support@zacess.com](mailto:support@zacess.com).
+- **Help with the reader or the browser version:** email [support@zacess.com](mailto:support@zacess.com).
 - **Security vulnerabilities:** never open a public issue. Follow [SECURITY.md](SECURITY.md).
 - **Anything else:** email [contact@zacess.com](mailto:contact@zacess.com).
 

@@ -62,7 +62,7 @@ describe("reading profiles", () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
     const themes = screen.getByRole("radiogroup", { name: "Colour theme" });
-    expect(within(themes).getAllByRole("radio")).toHaveLength(8);
+    expect(within(themes).getAllByRole("radio")).toHaveLength(10);
     await user.click(within(themes).getByRole("radio", { name: /High Contrast Dark/ }));
     let css = viewCss();
     expect(css).toContain("background: #000000; color: #ffffff");
@@ -97,6 +97,37 @@ describe("reading profiles", () => {
     expect(css).toContain("#0037df");
     expect(css).toContain("#b5200d");
     expect(JSON.parse(window.localStorage.getItem("zacess.profile") ?? "{}").contrast).toBe("deep_contrast_light");
+  });
+
+  it("offers both warm themes with their own link and focus colours", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+    const themes = screen.getByRole("radiogroup", { name: "Colour theme" });
+    await user.click(within(themes).getByRole("radio", { name: /Warm Dark/ }));
+    let css = viewCss();
+    expect(css).toContain("background: #211b17; color: #e5d5b6");
+    expect(css).toContain("color-scheme: dark");
+    expect(css).toContain("#f0c27e");
+    expect(css).toContain("#7abad3");
+    await user.click(within(themes).getByRole("radio", { name: /Warm Light/ }));
+    css = viewCss();
+    expect(css).toContain("background: #f4ead5; color: #342410");
+    expect(css).toContain("color-scheme: light");
+    expect(css).toContain("#5a2f02");
+    expect(css).toContain("#215779");
+    expect(JSON.parse(window.localStorage.getItem("zacess.profile") ?? "{}").contrast).toBe("warm_light");
+    unmount();
+    render(<App />);
+    expect(within(screen.getByRole("radiogroup", { name: "Colour theme" })).getByRole("radio", { name: /Warm Light/ })).toBeChecked();
+  });
+
+  it("applies the Gentle Warm preset in the Warm Dark theme", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const presets = screen.getByRole("radiogroup", { name: "Reading profile" });
+    await user.click(within(presets).getByRole("radio", { name: "Gentle Warm" }));
+    expect(within(screen.getByRole("radiogroup", { name: "Colour theme" })).getByRole("radio", { name: /Warm Dark/ })).toBeChecked();
+    expect(viewCss()).toContain("background: #211b17; color: #e5d5b6");
   });
 
   it("still loads a profile saved with one of the original four themes", () => {

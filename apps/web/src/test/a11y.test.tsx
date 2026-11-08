@@ -25,6 +25,19 @@ describe("axe-core", () => {
     }
   });
 
+  it("finds none in either warm theme or the Gentle Warm preset with a document open", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await openFixture(user, "lab.html");
+    await user.click(screen.getByRole("radio", { name: "Gentle Warm" }));
+    expect(await axeViolations()).toEqual([]);
+    const themes = screen.getByRole("radiogroup", { name: "Colour theme" });
+    for (const name of [/Warm Dark/, /Warm Light/]) {
+      await user.click(within(themes).getByRole("radio", { name }));
+      expect(await axeViolations()).toEqual([]);
+    }
+  });
+
   it("finds none in the dark theme after an error", async () => {
     const user = userEvent.setup({ applyAccept: false });
     render(<App />);

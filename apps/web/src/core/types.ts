@@ -9,8 +9,10 @@ export type ContrastTheme =
   | "high_contrast_dark"
   | "high_contrast_light"
   | "deep_contrast_dark"
-  | "deep_contrast_light";
-export type PresetId = "low_vision" | "dyslexia_friendly" | "reduced_visual_clutter" | "screen_reader";
+  | "deep_contrast_light"
+  | "warm_dark"
+  | "warm_light";
+export type PresetId = "low_vision" | "dyslexia_friendly" | "reduced_visual_clutter" | "screen_reader" | "gentle_warm";
 
 export interface ReadingProfile {
   schema_version: number;

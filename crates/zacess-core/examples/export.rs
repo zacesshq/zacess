@@ -5,9 +5,9 @@
 //! ```
 //!
 //! The input is imported. A document JSON file is read directly. The preset is one of
-//! `low-vision`, `dyslexia`, `clutter` and `screen-reader`; the standard profile is used otherwise.
-//! `high-contrast-dark`, `high-contrast-light`, `deep-contrast-dark` and `deep-contrast-light` give
-//! the standard profile in that theme.
+//! `low-vision`, `dyslexia`, `clutter`, `screen-reader` and `gentle-warm`; the standard profile is
+//! used otherwise. `high-contrast-dark`, `high-contrast-light`, `deep-contrast-dark`,
+//! `deep-contrast-light`, `warm-dark` and `warm-light` give the standard profile in that theme.
 
 use std::path::Path;
 use zacess_core::export::{
@@ -21,7 +21,7 @@ fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let (Some(input), Some(out_dir)) = (args.first(), args.get(1)) else {
         eprintln!(
-            "usage: export <file> <out-dir> [low-vision|dyslexia|clutter|screen-reader|high-contrast-dark|high-contrast-light|deep-contrast-dark|deep-contrast-light]"
+            "usage: export <file> <out-dir> [low-vision|dyslexia|clutter|screen-reader|gentle-warm|high-contrast-dark|high-contrast-light|deep-contrast-dark|deep-contrast-light|warm-dark|warm-light]"
         );
         std::process::exit(2);
     };
@@ -32,6 +32,7 @@ fn main() {
         "dyslexia" => ReadingProfile::preset(Preset::DyslexiaFriendly),
         "clutter" => ReadingProfile::preset(Preset::ReducedVisualClutter),
         "screen-reader" => ReadingProfile::preset(Preset::ScreenReader),
+        "gentle-warm" => ReadingProfile::preset(Preset::GentleWarm),
         "high-contrast-dark" => ReadingProfile {
             contrast: ContrastTheme::HighContrastDark,
             ..ReadingProfile::default()
@@ -46,6 +47,14 @@ fn main() {
         },
         "deep-contrast-light" => ReadingProfile {
             contrast: ContrastTheme::DeepContrastLight,
+            ..ReadingProfile::default()
+        },
+        "warm-dark" => ReadingProfile {
+            contrast: ContrastTheme::WarmDark,
+            ..ReadingProfile::default()
+        },
+        "warm-light" => ReadingProfile {
+            contrast: ContrastTheme::WarmLight,
             ..ReadingProfile::default()
         },
         other => {

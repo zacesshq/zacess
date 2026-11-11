@@ -3,7 +3,9 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 18 1,15 * *"
+      timezone: Europe/London
     open-pull-requests-limit: 3
     commit-message:
       prefix: chore
@@ -14,7 +16,9 @@ updates:
   - package-ecosystem: cargo
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 18 1,15 * *"
+      timezone: Europe/London
     open-pull-requests-limit: 3
     commit-message:
       prefix: chore
@@ -26,7 +30,9 @@ updates:
   - package-ecosystem: npm
     directories: [/, /tools/accessibility]
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 18 1,15 * *"
+      timezone: Europe/London
     open-pull-requests-limit: 3
     commit-message:
       prefix: chore
